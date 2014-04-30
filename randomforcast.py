@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import bindata
 import event
-
+import talib
 
 from backtest import Strategy, Portfolio
 
@@ -19,30 +19,39 @@ class RandomForecastingStrategy(Strategy):
         self.symbols = symbols
         self.bars = bars
         self.signals = {}
+        self.na = False
 
 
     def generate_signals(self):
         """Creates a naive signal"""
-        if sum(pd.isnull(bars.data.loc[symbol].ix[:, -1, 'Close']))==len(symbols):
+        if sum(pd.isnull(bars.data.ix[symbol, -1, 'Close']))==len(self.symbols):
             for sym in self.symbols:
                 self.signals[sym] = 0
+            self.na = True
         else:
             for sym in self.symbols:
-                self.signals[sym] = np.sign(np.random.randn())
+                if pd.isnull(bars.data.ix[sym,-1,'Close'])==False :
+                    self.signals[sym] = np.sign(np.random.randn())
+                else:
+                    self.signals[sym] = 0
+            self.na = False
 
 
 class OrderEngine():
-    def __init__(self, fee_rate, tax_rate, order_rate, slippage_rate):
+    def __init__(self, fee_rate=0, tax_rate=0, order_rate=1, slippage_rate=0):
         self.fee_rate = fee_rate
         self.tax_rate = tax_rate
         self.order_rate = order_rate
         self.slippage_rate = slippage_rate
 
-    def execute(self, bars, capital, position, direction):
+    def execute(self, portfolio):
         """execute orders according to expectation"""
-        for sym in direction:
-            position[sym] += direction[sym]
-            capital -= direction[sym] * float(bars.data.loc[[sym]].ix[:, -1, 'Close'])
+        portfolio.holding = 0
+        for sym in portfolio.direction:
+            portfolio.position[sym] += portfolio.direction[sym]
+            if pd.isnull(portfolio.bars.data.ix[sym, -1, 'Close'])==False:
+                portfolio.holding += portfolio.position[sym] * float(portfolio.bars.data.ix[sym, -1, 'Close'])
+                portfolio.cash -= portfolio.direction[sym] * float(portfolio.bars.data.ix[sym, -1, 'Close'])
 
 
 class MarketOnOpenPortfolio(Portfolio):
@@ -59,15 +68,20 @@ class MarketOnOpenPortfolio(Portfolio):
     signals - A pandas DataFrame of signals (1, 0, -1) for each symbol.
     initial_capital - The amount in cash at the start of the portfolio."""
 
-    def __init__(self, symbol, bars, signals, initial_capital=100000.0):
+    def __init__(self, symbol, bars, sty, initial_capital=100000.0):
         self.symbol = symbol
+        self.cash = initial_capital
+        self.holding = 0
+        self.start = bars.beg
+        self.stop = bars.end
         self.bars = bars
-        self.signals = signals
+        self.strategy = sty
         self.initial_capital = float(initial_capital)
         self.positions = pd.DataFrame(columns=self.symbol)
         self.position = {}
         self.direction = {}
         self.portfolio = pd.DataFrame(columns=self.symbol)
+        self.order_engine = OrderEngine()
         for sym in self.symbol:
             self.position[sym] = 0
 
@@ -77,19 +91,19 @@ class MarketOnOpenPortfolio(Portfolio):
     	100 of the particular symbol based on the forecast signals of
     	{1, 0, -1} from the signals DataFrame."""
         for sym in self.symbol:
-            self.direction[sym] = 100 * self.signals[sym]
+            self.direction[sym] = 100 * self.strategy.signals[sym]
 
+    def position_analysis(self):
         nadd = pd.Series(self.position)
-        nadd.name = bars.now
+        nadd.name = self.bars.now
         self.positions = self.positions.append(nadd)
 
-
     def optimize_portfolio(self):
-        """here it is an empty function
+        """ it is an empty function right now
         """
+        pass
 
-
-    def backtest_portfolio(self):
+    def backtest_portfolio(self, beg=0, end=0):
     	"""Constructs a portfolio from the positions DataFrame by
     	assuming the ability to trade at the precise market open price
     	of each bar (an unrealistic assumption!).
@@ -100,47 +114,49 @@ class MarketOnOpenPortfolio(Portfolio):
 
     	Returns the portfolio object to be used elsewhere."""
 
-    	# Construct the portfolio DataFrame to use the same index
-    	# as 'positions' and with a set of 'trading orders' in the
-    	# 'pos_diff' object, assuming market open prices.
-
         portfolio_line = {}
-        cash = self.initial_capital
-        holding = 0
-        total = cash + holding
+        total = self.cash + self.holding
         returns = 0
-
+        if beg != 0:
+            self.start = beg
+        if end != 0:
+            self.stop = end
         # first we update data feed
-        self.bars.update_bars()
+        while self.bars.proceed == "OK":
+            self.bars.update_bars()
+            print bars.now
+            # then we construct portfolio, we assume tradings occur at close
+            # we generate signals
 
-        # then we construct portfolio, we assume tradings occur at close
-        portfolio_line['holding'] = sum(self.positions.ix[-1] * self.bars.data.loc[self.symbol].ix[:, -1, 'Close'])
+            self.strategy.generate_signals()
+            if self.strategy.na:
+                portfolio_line['holding'] = 0
+                portfolio_line['cash'] = self.cash
 
-        # Create the 'holdings' and 'cash' series by running through
-        # the trades and adding/subtracting the relevant quantity from
-        # each column
-
-        portfolio_line['cash'] = cash
-
-        # Finalise the total and bar-based returns based on the 'cash'
-        # and 'holdings' figures for the portfolio
-        portfolio_line['total'] = portfolio_line['cash'] + portfolio_line['holdings']
-
-        # portfolio_history['returns'] = portfolio_history['total'].pct_change()
-        # return portfolio_history
+            else:
+                # we generate positions
+                self.generate_positions()
+                # we execute orders
+                self.order_engine.execute(self)
+                # we provide summary of our daily trading
+                self.position_analysis()
+                portfolio_line['holding'] = self.holding
+                portfolio_line['cash'] = self.cash
+                # Finalise the total and bar-based returns based on the 'cash'
+                # and 'holdings' figures for the portfolio
+                portfolio_line['total'] = portfolio_line['cash'] + portfolio_line['holding']
+                portfolio_line['date'] = bars.now
+                print portfolio_line
 
 
 if __name__ == "__main__":
     # Obtain daily bars of 603993
     # from BinData module
-    symbol = ['603993']
-    dt = bindata.BackTestData('~/data/')
-    bars = dt
+    symbol = ['000001','603993']
+    bars = bindata.BackTestData('~/data/')
     # Create a set of random forecasting signals for 603993
     rfs = RandomForecastingStrategy(symbol, bars)
-    signals = rfs.generate_signals()
 
     # Create a portfolio of 603993
-    portfolio = MarketOnOpenPortfolio(symbol, bars, signals, initial_capital=100000.0)
-    returns = portfolio.backtest_portfolio()
-    print returns.tail(10)
+    portfolio = MarketOnOpenPortfolio(symbol, bars, rfs, initial_capital=100000.0)
+    portfolio.backtest_portfolio()

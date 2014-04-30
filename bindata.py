@@ -30,7 +30,7 @@ class DataHandler(object):
         self.status = 1
         self.directory = os.path.expanduser(directory)
         self.code = []
-        self.stock = {}
+        self._stock = {}
         self.active = 0
         self.event = MarketEvent
         for root, dirnames, filenames in os.walk(directory):
@@ -45,9 +45,7 @@ class DataHandler(object):
         for row in reader:
             self.code.append(row[0])
         print " success"
-        if len(codelist) == 0:
-            print "All symbols are active"
-        else:
+        if len(codelist) != 0:
             if len(set(self.code) & set(codelist)) == 0:
                 print "ERROR: none of your symbols exists in database"
                 sys.exit(1)
@@ -66,7 +64,7 @@ class DataHandler(object):
             vp = 20
             increment = 20.0/len(self.code)
             if os.path.exists(self.directory+s+'.csv'):
-                self.stock[s] = pandas.read_csv(self.directory+s+'.csv',index_col=0,skipinitialspace=True, parse_dates=True)
+                self._stock[s] = pandas.read_csv(self.directory+s+'.csv',index_col=0,skipinitialspace=True, parse_dates=True)
                 i += 1
             else:
                 self.code.remove(s)
@@ -75,12 +73,12 @@ class DataHandler(object):
         print " success with "+str(i)+" securities, "+str(j)+" discarded"
 
         sys.stdout.write( " constituting pandas panel... ")
-        self.stock = pandas.Panel(self.stock)
-        self.beg = self.stock.ix[0].index[0].to_datetime()
-        self.end = self.stock.ix[0].index[-1].to_datetime()
+        self._stock = pandas.Panel(self._stock)
+        self.beg = self._stock.ix[0].index[0].to_datetime()
+        self.end = self._stock.ix[0].index[-1].to_datetime()
         self.now = self.beg
         self.ind = 0
-        self.data = self.stock
+        self.data = self._stock
         self.proceed = "OK"
         print "success"
 
@@ -113,11 +111,11 @@ class BackTestData(DataHandler):
         """
 
         self.ind += 1
-        self.data = self.stock.ix[:, 0:self.ind]
+        self.data = self._stock.ix[:, 0:self.ind]
         self.now = self.data.ix[0].index[-1].to_datetime()
-        if (self.end - self.now) < timedelta(days = 1):
+        if (self.end - self.now) < timedelta(days=1):
             self.proceed = "STOP"
-        self.get_latest_bars()
+        #self.get_latest_bars()
 
 
     def get_latest_bars(self, codelist=[]):
@@ -126,7 +124,6 @@ class BackTestData(DataHandler):
         or N-k if less available.
         """
         if len(codelist) == 0:
-            print "All symbols are active"
             newcodelist = self.code
         else:
             if len(set(self.code) & set(codelist)) == 0:
