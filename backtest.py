@@ -1,3 +1,4 @@
+__author__ = 'fanbin'
 from abc import ABCMeta, abstractmethod
 
 
@@ -26,12 +27,6 @@ class Portfolio(object):
 
     __metaclass__ = ABCMeta
 
-    @abstractmethod
-    def generate_positions(self):
-        """Provides the logic to determine how the portfolio
-        positions are allocated on the basis of forecasting
-        signals and available cash."""
-        raise NotImplementedError("Should implement generate_positions()!")
 
     @abstractmethod
     def backtest_portfolio(self):
@@ -44,9 +39,3 @@ class Portfolio(object):
         other classes/functions."""
         raise NotImplementedError("Should implement backtest_portfolio()!")
 
-    @abstractmethod
-    def optimize_portfolio(self):
-        """When signals are generated, we compute a optimised target
-        portfolio with cash and other constraints.
-        """
-        raise NotImplementedError("Should implement optimize_portfolio()!")

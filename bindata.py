@@ -21,8 +21,6 @@ class DataHandler(object):
     market data would be sent "down the pipe". Thus a historic and live
     system will be treated identically by the rest of the backtesting suite.
     """
-    __metaclass__ = ABCMeta
-
 
     def __init__(self, directory="./", codelist=[]):
         """Initialize working environment
@@ -30,9 +28,8 @@ class DataHandler(object):
         self.status = 1
         self.directory = os.path.expanduser(directory)
         self.code = []
-        self._stock = {}
+        self.stock = {}
         self.active = 0
-        self.event = MarketEvent
         for root, dirnames, filenames in os.walk(directory):
             for filename in filenames:
                 if fnmatch.fnmatch(filename, 'listcode.csv'):
@@ -64,59 +61,47 @@ class DataHandler(object):
             vp = 20
             increment = 20.0/len(self.code)
             if os.path.exists(self.directory+s+'.csv'):
-                self._stock[s] = pandas.read_csv(self.directory+s+'.csv',index_col=0,skipinitialspace=True, parse_dates=True)
+                self.stock[s] = pandas.read_csv(self.directory+s+'.csv',index_col=0,skipinitialspace=True, parse_dates=True)
                 i += 1
             else:
                 self.code.remove(s)
                 j += 1
             sys.stdout.write("\r[" + "=" * int(i * increment) + " " * int(vp - i * increment) + "] " + str(i)+"/"+str(len(self.code)))
-        print " success with "+str(i)+" securities, "+str(j)+" discarded"
+        print "\n Successfully imported "+str(i)+" securities, "+str(j)+" discarded"
 
-        sys.stdout.write( " constituting pandas panel... ")
-        self._stock = pandas.Panel(self._stock)
+        self.stock = pandas.Panel(self.stock)
+        self.beg = self.stock.ix[0].index[0].to_datetime()
+        self.end = self.stock.ix[0].index[-1].to_datetime()
+        self.date = self.stock.major_axis
+
+
+
+
+class BackTestData(object):
+
+    def __init__(self, target):
+        self._stock = target.stock
+        sys.stdout.write(" constituting data panel... ")
         self.beg = self._stock.ix[0].index[0].to_datetime()
         self.end = self._stock.ix[0].index[-1].to_datetime()
         self.now = self.beg
         self.ind = 0
-        self.data = self._stock
+        self.data = self._stock.ix[:, 0:self.ind+1]
         self.proceed = "OK"
+        self.date = self._stock.major_axis
         print "success"
-
-        @abstractmethod
-        def get_latest_bars(self, codelist=[]):
-            """
-            Returns the last N bars from the latest_symbol list,
-            or fewer if less bars are available.
-            """
-            raise NotImplementedError("Should implement get_latest_bars()")
-
-        @abstractmethod
-        def update_bars(self):
-            """
-            Pushes the latest bar to the latest symbol structure
-            for all symbols in the symbol list.
-            """
-            raise NotImplementedError("Should implement update_bars()")
-
-
-
-
-
-class BackTestData(DataHandler):
 
     def update_bars(self):
         """
         Pushes the latest bar to the latest_symbol_data structure
         for all symbols in the symbol list.
         """
-
         self.ind += 1
-        self.data = self._stock.ix[:, 0:self.ind]
+        self.data = self._stock.ix[:, 0:self.ind+1]
         self.now = self.data.ix[0].index[-1].to_datetime()
         if (self.end - self.now) < timedelta(days=1):
             self.proceed = "STOP"
         #self.get_latest_bars()
-
 
     def get_latest_bars(self, codelist=[]):
         """
@@ -135,4 +120,18 @@ class BackTestData(DataHandler):
             if len(voidcodelist) != 0:
                 print "WARNING: following symbols are not in database and ignored"
                 print voidcodelist
-        self.latest = self.data.ix[newcodelist,-1]
+        self.latest = self.data.ix[newcodelist, -1]
+
+
+    def reset(self):
+        sys.stdout.write(" reset context... ")
+        self.beg = self._stock.ix[0].index[0].to_datetime()
+        self.end = self._stock.ix[0].index[-1].to_datetime()
+        self.now = self.beg
+        self.ind = 0
+        self.data = self._stock.ix[:, 0:self.ind+1]
+        self.proceed = "OK"
+        self.date = self._stock.major_axis
+        print "success"
+
+raw = DataHandler('~/data/')
