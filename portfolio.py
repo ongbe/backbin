@@ -7,7 +7,6 @@ import bindata
 import math
 import random
 import event
-import talib
 
 from backtest import Portfolio
 from order import OrderEngine
@@ -50,9 +49,9 @@ class MarketOnClosePortfolio(Portfolio):
         self.stop_mark = False
 
     def generate_positions(self):
-    	"""Creates a 'positions' DataFrame that simply longs or shorts
-    	100 of the particular symbol based on the forecast signals of
-    	{1, 0, -1} from the signals DataFrame."""
+        """Creates a 'positions' DataFrame that simply longs or shorts
+        100 of the particular symbol based on the forecast signals of
+        {1, 0, -1} from the signals DataFrame."""
         self.optimizer.gen_positions(self.strategy.signals, self.book)
 
     def loop(self):

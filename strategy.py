@@ -7,7 +7,7 @@ import bindata
 import math
 import random
 import event
-import talib
+"""import talib"""
 
 
 from backtest import Strategy
@@ -20,7 +20,7 @@ class CurrentStrategy(Strategy):
     backtesting infrastructure!"""
 
     def __init__(self, symbols, bars):
-    	"""Requires the symbol ticker and the pandas DataFrame of bars"""
+        """Requires the symbol ticker and the pandas DataFrame of bars"""
         self.symbols = symbols
         self.bars = bars
         self.signals = pd.DataFrame(columns=self.symbols, index=["mark", "signal", "intensity", "credibility", "risk"])
@@ -51,7 +51,6 @@ class CurrentStrategy(Strategy):
                     self.signals[sym]["mark"] = 1
             self.sig_generator(self.signals)
             # function_list["generate_signals"](self.signals)
-
 
     def sig_generator(self, signals):
         """Creates a naive signal"""

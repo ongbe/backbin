@@ -7,8 +7,6 @@ import sys
 from abc import ABCMeta, abstractmethod
 from event import MarketEvent
 
-
-
 class DataHandler(object):
     """
     DataHandler is an abstract base class providing an interface for
