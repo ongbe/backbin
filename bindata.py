@@ -35,7 +35,7 @@ class DataHandler(object):
                 else:
                     raise Exception("Must assign proper data directory")
         sys.stdout.write( "1. reading codes...")
-        ifile  = open(self.directory+'listcode.csv', "r")
+        ifile = open(self.directory+'listcode.csv', "r")
         reader = csv.reader(ifile)
         for row in reader:
             self.code.append(row[0])
