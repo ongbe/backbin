@@ -19,8 +19,7 @@ class DataHandler(object):
     market data would be sent "down the pipe". Thus a historic and live
     system will be treated identically by the rest of the backtesting suite.
     """
-
-    def __init__(self, directory="./", codelist=[]):
+    def init_from_dir(self, directory="./", codelist=[]):
         """Initialize working environment
         Need to assign data directory, default: current directory"""
         self.status = 1
@@ -54,7 +53,6 @@ class DataHandler(object):
         print "2. reading time series..."
         i = 0
         j = 0
-
         for s in self.code:
             vp = 20
             increment = 20.0/len(self.code)
@@ -70,7 +68,11 @@ class DataHandler(object):
         self.stock = pandas.Panel(self.stock)
         self.beg = self.stock.ix[0].index[0].to_datetime()
         self.end = self.stock.ix[0].index[-1].to_datetime()
-        self.date = self.stock.major_axis
+        self.date = self.stock.major_axis    
+
+
+    def __init__(self, directory="./", codelist=[]):
+        self.init_from_dir(directory, codelist)
 
 
 
@@ -120,8 +122,10 @@ class BackTestData(object):
                 print voidcodelist
         self.latest = self.data.ix[newcodelist, -1]
 
-
     def reset(self):
+        """
+        Restore all data status to original.
+        """
         sys.stdout.write(" reset context... ")
         self.beg = self._stock.ix[0].index[0].to_datetime()
         self.end = self._stock.ix[0].index[-1].to_datetime()
