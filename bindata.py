@@ -74,10 +74,10 @@ class DataHandler(object):
         print "\n Successfully imported "+str(i)+" securities, "+str(j)+" discarded"
 
         self.stock = pandas.Panel(self.stock)
-        self.beg = self.stock.ix[0].index[0].to_datetime()
-        self.end = self.stock.ix[0].index[-1].to_datetime()
-        self.date = self.stock.major_axis    
-
+        self.beg   = self.stock.major_axis[0].to_datetime()
+        self.end   = self.stock.major_axis[-1].to_datetime()
+        self.date  = self.stock.major_axis    
+        self.status_table = pandas.DataFrame(index=self.date, columns=self.code)
 
     def __init__(self, directory = None, target = None, codelist=[]):
         if (directory is not None):
@@ -94,14 +94,18 @@ class DataHandler(object):
 
 class BackTestData(object):
 
-    def __init__(self, target):
+    def __init__(self, target, start=None):
+        if (start is None):
+            self.start_ind = 0
+        else:
+            self.start_ind = start
         self._stock = target.stock
         sys.stdout.write(" constituting data panel... ")
-        self.beg = self._stock.ix[0].index[0].to_datetime()
+        self.beg = self._stock.ix[0].index[self.start_ind].to_datetime()
         self.end = self._stock.ix[0].index[-1].to_datetime()
         self.now = self.beg
-        self.ind = 0
-        self.data = self._stock.ix[:, 0:self.ind+1]
+        self.ind = self.start_ind
+        self.data = self._stock.ix[:, self.start_ind:self.ind+1]
         self.proceed = "OK"
         self.date = self._stock.major_axis
         print "success"
@@ -112,7 +116,7 @@ class BackTestData(object):
         for all symbols in the symbol list.
         """
         self.ind += 1
-        self.data = self._stock.ix[:, 0:self.ind+1]
+        self.data = self._stock.ix[:, self.start_ind:self.ind+1]
         self.now = self.data.ix[0].index[-1].to_datetime()
         if (self.end - self.now) < timedelta(days=1):
             self.proceed = "STOP"
@@ -143,11 +147,11 @@ class BackTestData(object):
         Restore all data status to original.
         """
         sys.stdout.write(" reset context... ")
-        self.beg = self._stock.ix[0].index[0].to_datetime()
+        self.beg = self._stock.ix[0].index[self.start_ind].to_datetime()
         self.end = self._stock.ix[0].index[-1].to_datetime()
         self.now = self.beg
-        self.ind = 0
-        self.data = self._stock.ix[:, 0:self.ind+1]
+        self.ind = self.start_ind
+        self.data = self._stock.ix[:, self.start_ind:self.ind+1]
         self.proceed = "OK"
         self.date = self._stock.major_axis
         print "success"

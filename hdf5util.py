@@ -70,4 +70,7 @@ def ReadFromHDF(filename):
         pn.desp[key]['name'] = attrs.get(name='name')
     f.close()
     pn.stock = pandas.Panel(pn.stock)
+    pn.date = pn.stock.major_axis
+    pn.status_table = pandas.DataFrame(index=pn.date, columns=pn.code)
+
     return pn 
