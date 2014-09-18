@@ -26,6 +26,7 @@ class DataHandler(object):
         self.directory = os.path.expanduser(directory)
         self.code = []
         self.stock = {}
+        self.desp = {}
         self.active = 0
         for root, dirnames, filenames in os.walk(directory):
             for filename in filenames:
@@ -36,8 +37,15 @@ class DataHandler(object):
         sys.stdout.write( "1. reading codes...")
         ifile = open(self.directory+'listcode.csv', "r")
         reader = csv.reader(ifile)
+        next(reader, None) 
         for row in reader:
             self.code.append(row[0])
+            self.desp[row[0]]={}
+            self.desp[row[0]]['gics']=row[1]
+            self.desp[row[0]]['float']=row[2]
+            self.desp[row[0]]['total']=row[3]
+            self.desp[row[0]]['beg']=row[4]
+            self.desp[row[0]]['name']=row[5]
         print " success"
         if len(codelist) != 0:
             if len(set(self.code) & set(codelist)) == 0:
@@ -71,9 +79,16 @@ class DataHandler(object):
         self.date = self.stock.major_axis    
 
 
-    def __init__(self, directory="./", codelist=[]):
-        self.init_from_dir(directory, codelist)
-
+    def __init__(self, directory = None, target = None, codelist=[]):
+        if (directory is not None):
+            print "read data from directory"
+            self.init_from_dir(directory, codelist)
+        else:
+            self.status = 1
+            self.code = []
+            self.stock = {}
+            self.desp = {}
+            self.active = 0
 
 
 
@@ -122,6 +137,7 @@ class BackTestData(object):
                 print voidcodelist
         self.latest = self.data.ix[newcodelist, -1]
 
+
     def reset(self):
         """
         Restore all data status to original.
@@ -136,4 +152,4 @@ class BackTestData(object):
         self.date = self._stock.major_axis
         print "success"
 
-raw = DataHandler('~/data/')
+raw = DataHandler(directory='~/data/')
