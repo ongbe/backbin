@@ -34,7 +34,7 @@ def WriteToHDF(panel, desp, filename):
         dt = dt[~np.isnan(dt).any(axis=1).A1]
         #  ----this line consumes much time, needs optimization
         tb = Table(dt, names=col, meta=mt, dtype=('i8','f4','f4','f4','f4','f4','f4','f4'))
-        #  ----
+        #  ---- end -------------
         grp = f.create_group("/stock/"+code)
         write_table_hdf5(table=tb, output=grp, path='quote', overwrite=True)
         grp.attrs['code'] = code

@@ -1,3 +1,4 @@
 *.pyc
 .idea/
 *.h5
+*.spy*

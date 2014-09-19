@@ -10,7 +10,7 @@ from event import MarketEvent
 
 class DataHandler(object):
     """
-    DataHandler is an abstract base class providing an interface for
+    DataHandler is an  base class providing an interface for
     all subsequent (inherited) data handlers (both live and historic).
 
     The goal of a (derived) DataHandler object is to output a generated
@@ -18,7 +18,6 @@ class DataHandler(object):
 
     This will replicate how a live strategy would function as current
     market data would be sent "down the pipe". Thus a historic and live
-    system will be treated identically by the rest of the backtesting suite.
     """
     def init_from_dir(self, directory="./", codelist=[]):
         """Initialize working environment
@@ -75,17 +74,24 @@ class DataHandler(object):
         print "\n Successfully imported "+str(i)+" securities, "+str(j)+" discarded"
 
         self.stock = pandas.Panel(self.stock)
+        # set begin time
         self.beg   = self.stock.major_axis[0].to_datetime()
+        # set end time 
         self.end   = self.stock.major_axis[-1].to_datetime()
-        self.date  = self.stock.major_axis    
+        # take datetimeindex as date list
+        self.date  = self.stock.major_axis
         self.status_table = pandas.DataFrame(index=self.date, columns=self.code)
 
     def __init__(self, directory = None, target = None, codelist=[]):
         if (directory is not None):
+            # read data from data directory
             print "read data from directory"
             self.init_from_dir(directory, codelist)
             self.compile_table()
         else:
+            # create an empty data handler
+            # usually waiting for later read data from 
+            # database, such as hdf5
             self.status = 1
             self.code = []
             self.stock = {}
@@ -97,14 +103,20 @@ class DataHandler(object):
         self.status_table=pandas.DataFrame(0,index=mark.index, columns=mark.columns)
         self.status_table[~mark]=1 # set listed stock status to 1
         mark = (self.stock.ix[:,:,6]<0.1)
-        self.status_table[mark] = 2 # set halt stock status to 2
-
+        self.status_table[mark] = 2 # set halt stock status to 2 
+        # set halt stock's data to be NaN
+        # this conforms to pandas's misssing data convention
+        for i in xrange(7):
+            self.stock.ix[:,:,i][mark]=np.nan
+        
 
 class BackTestData(object):
 
     def __init__(self, target, start=None):
         if (start is None):
-            self.start_ind = 0
+            # default start from half a year later
+            # some computation required history data (correlation)
+            self.start_ind = 125
         else:
             self.start_ind = start
         self._stock = target.stock
@@ -123,9 +135,12 @@ class BackTestData(object):
         Pushes the latest bar to the latest_symbol_data structure
         for all symbols in the symbol list.
         """
+        # increment index by 1
         self.ind += 1
         self.data = self._stock.ix[:, self.start_ind:self.ind+1]
+        # set now to be current date
         self.now = self.data.ix[0].index[-1].to_datetime()
+        # if we are reaching the end, raise the stop flag
         if (self.end - self.now) < timedelta(days=1):
             self.proceed = "STOP"
         #self.get_latest_bars()
