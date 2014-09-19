@@ -35,11 +35,11 @@ def WriteToHDF(panel, desp, filename):
         #  ----this line consumes much time, needs optimization
         tb = Table(dt, names=col, meta=mt, dtype=('i8','f4','f4','f4','f4','f4','f4','f4'))
         #  ----
-        grp = f.create_group(code)
+        grp = f.create_group("/stock/"+code)
         write_table_hdf5(table=tb, output=grp, path='quote', overwrite=True)
         grp.attrs['code'] = code
-        grp.attrs['name'] = desp[code][4]
-        grp.attrs['gics'] = desp[code][0]
+        grp.attrs['name'] = desp[code]['name']
+        grp.attrs['gics'] = desp[code]['gics']
         grp.attrs['first']= head[0]
         grp.attrs['last'] = head[-1]
         grp.attrs['beg']= datetime.datetime.utcfromtimestamp(head[0]/1000).strftime('%Y%m%d.%H:%M:%S')
@@ -51,9 +51,13 @@ def WriteToHDF(panel, desp, filename):
 def ReadFromHDF(filename):
     pn = DataHandler()
     f = h5py.File(filename, 'r')
-    grps = f.keys();
+    
+    # read stock data
+    rgroup = f['stock']
+    
+    grps = rgroup.keys();
     for key in grps:
-        grp = f[key]
+        grp = rgroup[key]
         attrs= grp.attrs
         astro_tb = read_table_hdf5(grp, path='quote')
         m = np.matrix(astro_tb['TIMESTAMP'])
@@ -72,5 +76,5 @@ def ReadFromHDF(filename):
     pn.stock = pandas.Panel(pn.stock)
     pn.date = pn.stock.major_axis
     pn.status_table = pandas.DataFrame(index=pn.date, columns=pn.code)
-
+    pn.compile_table()
     return pn 

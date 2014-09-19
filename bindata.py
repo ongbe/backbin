@@ -1,4 +1,5 @@
 from pandas import *
+import numpy as np
 from datetime import datetime, timedelta
 import os, os.path
 import fnmatch
@@ -83,13 +84,20 @@ class DataHandler(object):
         if (directory is not None):
             print "read data from directory"
             self.init_from_dir(directory, codelist)
+            self.compile_table()
         else:
             self.status = 1
             self.code = []
             self.stock = {}
             self.desp = {}
             self.active = 0
-
+    
+    def compile_table(self):
+        mark = np.isnan(self.stock).ix[:,:,1]
+        self.status_table=pandas.DataFrame(0,index=mark.index, columns=mark.columns)
+        self.status_table[~mark]=1 # set listed stock status to 1
+        mark = (self.stock.ix[:,:,6]<0.1)
+        self.status_table[mark] = 2 # set halt stock status to 2
 
 
 class BackTestData(object):
