@@ -15,15 +15,19 @@ from bindata import DataHandler
 quote_col = ['Open','Close','High','Low','Pre','Vol','Amt']
 
 
-
 def WriteToHDF(panel, desp, filename):
+    """ WriteToHDF: write data to HDF
+    
+    """
     code="";
     f = h5py.File(filename, 'w')
+    # attributes prepared for HDF
     mt = {"version":"3.0", "CLASS":"TABLE", 
     "TITLE":"quote", "FIELD_0_NAME":"TIMESTAMP",
     "FIELD_1_NAME":"Open","FIELD_2_NAME":"Close",
     "FIELD_3_NAME":"High", "FIELD_4_NAME":"Low","FIELD_5_NAME":"Prev",
     "FIELD_6_NAME":"Vol", "FIELD_7_NAME":"Amt"}
+    # loop to write stock by stock
     for tp in panel.iteritems():
         code=tp[0];
         ind = tp[1].index.values
@@ -49,6 +53,9 @@ def WriteToHDF(panel, desp, filename):
     
     
 def ReadFromHDF(filename):
+    """ ReadFromHDF: read data from HDF
+    
+    """
     pn = DataHandler()
     f = h5py.File(filename, 'r')
     

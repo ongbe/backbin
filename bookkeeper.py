@@ -2,10 +2,24 @@ __author__ = 'fanbin'
 import pandas as pd
 import numpy
 import math
-import datetime
 
 class Book():
     def __init__(self, symbol, bars, initial_capital=100000.0):
+        """Book Class initialization
+        Parameters
+        ----------
+        var1 : array_like
+            This is a type.
+        var2 : int
+            This is another var.
+        Long_variable_name : {'hi', 'ho'}, optional
+            Choices in brackets, default first when optional.
+ 
+        Returns
+        -------
+            describe : type
+            Explanation
+        """
         self.symbol = symbol
         self.cash = initial_capital
         self.holding = 0
@@ -28,30 +42,49 @@ class Book():
         self.book.ix['Asset', self.bar.ind, 'Pos'] = self.cash
 
     def update(self):
+        """everyday update book
+        Parameters
+        ----------
+ 
+        Returns
+        -------
+            describe : type
+            Explanation
+        """
         self.ind = self.bar.ind
         self.stop_ind += 1
         self.book.ix[self.symbol, self.bar.ind, 'Close'] = self.bar.data.ix[self.symbol, self.bar.ind, 'Close']
         if self.bar.ind != 0:
-            self.book.ix[self.symbol, self.bar.ind, 'PreClose'] = self.bar.data.ix[self.symbol, self.bar.ind-1, 'Close']
-            self.book.ix[self.symbol, self.bar.ind, 'Pos'] = self.book.ix[self.symbol, self.bar.ind-1, 'Pos']
-            self.book.ix[self.symbol, self.bar.ind, 'PrePos'] = self.book.ix[self.symbol, self.bar.ind-1, 'Pos']
-            self.book.ix['Cash', self.bar.ind, 'Pos'] = self.book.ix['Cash', self.bar.ind-1, 'Pos']
-            self.book.ix['Cash', self.bar.ind, 'PrePos'] = self.book.ix['Cash', self.bar.ind-1, 'Pos']
+            self.book.ix[self.symbol, self.bar.ind, 'PreClose'] =\
+                self.bar.data.ix[self.symbol, self.bar.ind-1, 'Close']
+            self.book.ix[self.symbol, self.bar.ind, 'Pos'] = \
+                self.book.ix[self.symbol, self.bar.ind-1, 'Pos']
+            self.book.ix[self.symbol, self.bar.ind, 'PrePos'] = \
+                self.book.ix[self.symbol, self.bar.ind-1, 'Pos']
+            self.book.ix['Cash', self.bar.ind, 'Pos'] = \
+                self.book.ix['Cash', self.bar.ind-1, 'Pos']
+            self.book.ix['Cash', self.bar.ind, 'PrePos'] = \
+                self.book.ix['Cash', self.bar.ind-1, 'Pos']
             self.book.ix['Cash', self.ind, 'DeltaPL'] = 0
 
-            self.book.ix['Asset', self.bar.ind, 'Pos'] = self.book.ix['Asset', self.bar.ind-1, 'Pos']
-            self.book.ix['Asset', self.bar.ind, 'PrePos'] = self.book.ix['Asset', self.ind-1, 'Pos']
+            self.book.ix['Asset', self.bar.ind, 'Pos'] = \
+                self.book.ix['Asset', self.bar.ind-1, 'Pos']
+            self.book.ix['Asset', self.bar.ind, 'PrePos'] = \
+                self.book.ix['Asset', self.ind-1, 'Pos']
             self.book.ix["Asset", self.ind, "DeltaPL"] = 0
 
-            self.book.ix['Security', self.bar.ind, 'Pos'] = self.book.ix['Security', self.bar.ind-1, 'Pos']
-            self.book.ix['Security', self.bar.ind, 'PrePos'] = self.book.ix['Security', self.ind-1, 'Pos']
+            self.book.ix['Security', self.bar.ind, 'Pos'] = \
+                self.book.ix['Security', self.bar.ind-1, 'Pos']
+            self.book.ix['Security', self.bar.ind, 'PrePos'] = \
+                self.book.ix['Security', self.ind-1, 'Pos']
             self.book.ix["Security", self.ind, "DeltaPL"] = 0
 
     def compile(self):
         if self.bar.ind != 0:
-            self.book.ix[self.symbol, self.ind, "DeltaPL"] = (self.book.ix[self.symbol, self.ind, 'Close']  \
-                                                       - self.book.ix[self.symbol, self.ind, 'PreClose']) \
-                                                       * self.book.ix[self.symbol, self.ind, 'PrePos']
+            self.book.ix[self.symbol, self.ind, "DeltaPL"] = \
+                (self.book.ix[self.symbol, self.ind, 'Close']  \
+                - self.book.ix[self.symbol, self.ind, 'PreClose']) \
+                * self.book.ix[self.symbol, self.ind, 'PrePos']
             self.book.ix[self.symbol, self.ind, "Slip"] = (self.book.ix[self.symbol, self.ind, 'Close'] \
                                                      - self.book.ix[self.symbol, self.ind, 'mmk']) \
                                                     * (self.book.ix[self.symbol, self.ind, 'Pos'] \
