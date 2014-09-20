@@ -1,0 +1,253 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>portfolio &mdash; backbin 0.9 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="backbin 0.9 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">backbin 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for portfolio</h1><div class="highlight"><pre>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;fanbin&#39;</span>
+
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+
+<span class="kn">from</span> <span class="nn">backtest</span> <span class="kn">import</span> <span class="n">Portfolio</span>
+<span class="kn">from</span> <span class="nn">order</span> <span class="kn">import</span> <span class="n">OrderEngine</span>
+<span class="kn">from</span> <span class="nn">bookkeeper</span> <span class="kn">import</span> <span class="n">Book</span>
+
+<div class="viewcode-block" id="MarketOnClosePortfolio"><a class="viewcode-back" href="../portfolio.html#portfolio.MarketOnClosePortfolio">[docs]</a><span class="k">class</span> <span class="nc">MarketOnClosePortfolio</span><span class="p">(</span><span class="n">Portfolio</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Inherits Portfolio to create a system that purchases 100 units of</span>
+<span class="sd">    a particular symbol upon a long/short signal, assuming the market</span>
+<span class="sd">    open price of a bar.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    ----------</span>
+<span class="sd">    symbol - A stock symbol which forms the basis of the portfolio.</span>
+<span class="sd">    bars - A DataFrame of bars for a symbol set.</span>
+<span class="sd">    signals - A pandas DataFrame of signals (1, 0, -1) for each symbol.</span>
+<span class="sd">    initial_capital - The amount in cash at the start of the portfolio.</span>
+<span class="sd">    </span>
+<span class="sd">    Notes:</span>
+<span class="sd">    ----------</span>
+<span class="sd">    In addition, there are zero transaction costs and cash can be immediately</span>
+<span class="sd">    borrowed for shorting (no margin posting or interest requirements).</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symbol</span><span class="p">,</span> <span class="n">bars</span><span class="p">,</span> <span class="n">strategy</span><span class="p">,</span> <span class="n">opt</span><span class="p">,</span> <span class="n">initial_capital</span><span class="o">=</span><span class="mf">100000.0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span> <span class="o">=</span> <span class="n">symbol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cash</span> <span class="o">=</span> <span class="n">initial_capital</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">holding</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">bars</span><span class="o">.</span><span class="n">beg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop</span> <span class="o">=</span> <span class="n">bars</span><span class="o">.</span><span class="n">end</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bars</span> <span class="o">=</span> <span class="n">bars</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">=</span> <span class="n">strategy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bars</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">get_loc</span><span class="p">(</span><span class="n">bars</span><span class="o">.</span><span class="n">end</span><span class="p">)</span> <span class="o">-</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">bars</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">get_loc</span><span class="p">(</span><span class="n">bars</span><span class="o">.</span><span class="n">beg</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_mark</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">opt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_capital</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">initial_capital</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">positions</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">direction</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">portfolio</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">order_engine</span> <span class="o">=</span> <span class="n">OrderEngine</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">book</span> <span class="o">=</span> <span class="n">Book</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bars</span><span class="p">,</span> <span class="n">initial_capital</span><span class="o">=</span><span class="mf">100000.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bars</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;Pos&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bars</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;PrePos&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop_mark</span> <span class="o">=</span> <span class="bp">False</span>
+
+<div class="viewcode-block" id="MarketOnClosePortfolio.generate_positions"><a class="viewcode-back" href="../portfolio.html#portfolio.MarketOnClosePortfolio.generate_positions">[docs]</a>    <span class="k">def</span> <span class="nf">generate_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;generate a list of expected positions of each symbol</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        symbol : list of strings</span>
+<span class="sd">            list of interested symbols</span>
+<span class="sd">        bars : </span>
+<span class="sd">            pass in data so that I can know its structures</span>
+<span class="sd">        initial_capital:</span>
+<span class="sd">            Well, we need some initial capital for investment</span>
+<span class="sd">            default value is 1 million</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Creates a &#39;positions&#39; DataFrame that simply longs or shorts</span>
+<span class="sd">        100 of the particular symbol based on the forecast signals of</span>
+<span class="sd">        {1, 0, -1} from the signals DataFrame.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">gen_positions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">strategy</span><span class="o">.</span><span class="n">signals</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MarketOnClosePortfolio.loop"><a class="viewcode-back" href="../portfolio.html#portfolio.MarketOnClosePortfolio.loop">[docs]</a>    <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># update bars for one day, acquiring new data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bars</span><span class="o">.</span><span class="n">update_bars</span><span class="p">()</span>
+        <span class="c"># prepare book status for use</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">prepare</span><span class="p">()</span>
+        <span class="c"># then we construct portfolio, we assume tradings occur at close</span>
+        <span class="c"># we generate signals</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span><span class="o">.</span><span class="n">generate_signals</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_mark</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span><span class="o">.</span><span class="n">na</span><span class="p">:</span>
+            <span class="c"># strategy says no trading required</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># generate positions</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">gen_positions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">strategy</span><span class="o">.</span><span class="n">signals</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="p">)</span>
+            <span class="c"># check if constraints have been violated</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">drawdown_mark</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">Stop: Drawdown reaches limit &quot;</span><span class="o">+</span> \
+                    <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">drawdown</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stop_mark</span> <span class="o">=</span> <span class="bp">True</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">leverage_mark</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">Warning: leverage reached limit &quot;</span><span class="o">+</span> \
+                    <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">leverage</span><span class="p">)</span>
+            <span class="c"># we execute orders</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">order_engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="p">)</span>
+        <span class="c"># we compile book at the end of every day</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+
+</div>
+<div class="viewcode-block" id="MarketOnClosePortfolio.backtest_portfolio"><a class="viewcode-back" href="../portfolio.html#portfolio.MarketOnClosePortfolio.backtest_portfolio">[docs]</a>    <span class="k">def</span> <span class="nf">backtest_portfolio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">beg</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">worker</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">job</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    	<span class="sd">&quot;&quot;&quot;Constructs a portfolio from the positions DataFrame by</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">beg</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">beg</span>
+        <span class="k">if</span> <span class="n">end</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stop</span> <span class="o">=</span> <span class="n">end</span>
+        <span class="c"># first we update data book</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">prepare</span><span class="p">()</span>
+        <span class="c"># start backtest</span>
+        <span class="k">print</span> <span class="s">&quot;-------------&quot;</span>
+        <span class="k">print</span> <span class="s">&quot;Start Backtest:&quot;</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">bars</span><span class="o">.</span><span class="n">proceed</span> <span class="o">==</span> <span class="s">&quot;OK&quot;</span><span class="p">:</span> <span class="c"># if the light is green</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop_mark</span><span class="p">:</span> <span class="c"># if the stop flag is raised, quit</span>
+                <span class="k">break</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">()</span>
+            <span class="c"># we provide summary of our daily trading</span>
+            <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_mark</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="o">*</span><span class="mf">100.0</span><span class="p">)</span><span class="o">&gt;</span><span class="n">j</span><span class="p">:</span>
+                <span class="n">worker</span><span class="o">.</span><span class="n">send_job_status</span><span class="p">(</span><span class="n">job</span><span class="p">,</span> \
+                    <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_mark</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="o">*</span><span class="mf">100.0</span><span class="p">),</span> <span class="mi">100</span><span class="p">)</span>
+                <span class="n">j</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_mark</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="o">*</span><span class="mf">100.0</span><span class="p">)</span>
+        
+        <span class="k">print</span> <span class="s">&quot;</span><span class="se">\n\n</span><span class="s">------------------------------------&quot;</span>
+        <span class="k">print</span> <span class="s">&quot;Msg: backtest finished successfully&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">book</span>
+
+</div>
+<div class="viewcode-block" id="MarketOnClosePortfolio.backtest_portfolio_external"><a class="viewcode-back" href="../portfolio.html#portfolio.MarketOnClosePortfolio.backtest_portfolio_external">[docs]</a>    <span class="k">def</span> <span class="nf">backtest_portfolio_external</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">beg</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">0</span><span class="p">,):</span>
+    	<span class="sd">&quot;&quot;&quot;Constructs a portfolio from the positions DataFrame by</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">beg</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">beg</span>
+        <span class="k">if</span> <span class="n">end</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stop</span> <span class="o">=</span> <span class="n">end</span>
+        <span class="c"># first we update data feed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">prepare</span><span class="p">()</span>
+        <span class="n">incre</span> <span class="o">=</span> <span class="mf">20.0</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span>
+        <span class="k">print</span> <span class="s">&quot;-------------&quot;</span>
+        <span class="k">print</span> <span class="s">&quot;Start Backtest:&quot;</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">bars</span><span class="o">.</span><span class="n">proceed</span> <span class="o">==</span> <span class="s">&quot;OK&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop_mark</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">()</span>
+            <span class="c"># we provide summary of our daily trading</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\r</span><span class="s"> Progress: [&quot;</span> <span class="o">+</span> <span class="s">&quot;=&quot;</span> \
+                            <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_mark</span> <span class="o">*</span> <span class="n">incre</span><span class="p">)</span> <span class="o">+</span>
+                            <span class="s">&quot; &quot;</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="mi">20</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_mark</span> <span class="o">*</span> <span class="n">incre</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;] &quot;</span>
+                            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_mark</span><span class="p">)</span><span class="o">+</span><span class="s">&quot;/&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">))</span>
+                            
+            <span class="c"># this is for debug purpose</span>
+            <span class="c">#self.book.print_daily_summary()</span>
+            <span class="c"># ------------------------</span>
+        <span class="k">print</span> <span class="s">&quot;</span><span class="se">\n\n</span><span class="s">------------------------------------&quot;</span>
+        <span class="k">print</span> <span class="s">&quot;Msg: backtest finished successfully&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">book</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">backbin 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Bin Fan.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

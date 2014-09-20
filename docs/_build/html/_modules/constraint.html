@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Overview: module code &mdash; backbin 0.9 documentation</title>
+    <title>constraint &mdash; backbin 0.9 documentation</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -23,7 +23,8 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="backbin 0.9 documentation" href="../index.html" /> 
+    <link rel="top" title="backbin 0.9 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -35,7 +36,8 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../index.html">backbin 0.9 documentation</a> &raquo;</li> 
+        <li><a href="../index.html">backbin 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -44,21 +46,19 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <h1>All modules for which code is available</h1>
-<ul><li><a href="backta.html">backta</a></li>
-<li><a href="backtest.html">backtest</a></li>
-<li><a href="bindata.html">bindata</a></li>
-<li><a href="bookkeeper.html">bookkeeper</a></li>
-<li><a href="constraint.html">constraint</a></li>
-<li><a href="event.html">event</a></li>
-<li><a href="hdf5util.html">hdf5util</a></li>
-<li><a href="optimize.html">optimize</a></li>
-<li><a href="order.html">order</a></li>
-<li><a href="portfolio.html">portfolio</a></li>
-<li><a href="server.html">server</a></li>
-<li><a href="strategy.html">strategy</a></li>
-<li><a href="test.html">test</a></li>
-</ul>
+  <h1>Source code for constraint</h1><div class="highlight"><pre>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;fanbin&#39;</span>
+
+<div class="viewcode-block" id="Constraint"><a class="viewcode-back" href="../constraint.html#constraint.Constraint">[docs]</a><span class="k">class</span> <span class="nc">Constraint</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">short_sell</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">pos_lim</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">leverage</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">drawdown</span><span class="o">=</span><span class="mf">0.6</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">short_sell</span> <span class="o">=</span> <span class="n">short_sell</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos_lim</span> <span class="o">=</span> <span class="n">pos_lim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos_lim_mark</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">leverage</span> <span class="o">=</span> <span class="n">leverage</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">leverage_mark</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drawdown</span> <span class="o">=</span> <span class="n">drawdown</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drawdown_mark</span> <span class="o">=</span> <span class="bp">False</span></div>
+</pre></div>
 
           </div>
         </div>
@@ -91,7 +91,8 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../index.html">backbin 0.9 documentation</a> &raquo;</li> 
+        <li><a href="../index.html">backbin 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

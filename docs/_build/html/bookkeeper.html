@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>bookkeeper module &mdash; . 0.9.2 documentation</title>
+    <title>bookkeeper module &mdash; backbin 0.9 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.9.2',
+        VERSION:     '0.9',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title=". 0.9.2 documentation" href="index.html" />
+    <link rel="top" title="backbin 0.9 documentation" href="index.html" />
     <link rel="next" title="client module" href="client.html" />
     <link rel="prev" title="bindata module" href="bindata.html" /> 
   </head>
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="bindata.html" title="bindata module"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">. 0.9.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">backbin 0.9 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -52,8 +52,47 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="bookkeeper-module">
-<h1>bookkeeper module<a class="headerlink" href="#bookkeeper-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-bookkeeper">
+<span id="bookkeeper-module"></span><h1>bookkeeper module<a class="headerlink" href="#module-bookkeeper" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="bookkeeper.Book">
+<em class="property">class </em><tt class="descclassname">bookkeeper.</tt><tt class="descname">Book</tt><big>(</big><em>symbol</em>, <em>bars</em>, <em>initial_capital=1000000.0</em><big>)</big><a class="reference internal" href="_modules/bookkeeper.html#Book"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bookkeeper.Book" title="Permalink to this definition">¶</a></dt>
+<dd><p class="rubric">Methods</p>
+<dl class="method">
+<dt id="bookkeeper.Book.compile">
+<tt class="descname">compile</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/bookkeeper.html#Book.compile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bookkeeper.Book.compile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compile book, should be called every time unit</p>
+<p class="rubric">Notes</p>
+<p>This is an example of autodoc using numpydoc, the Numpy documentation format
+with the numpydoc extension <a href="#id2"><span class="problematic" id="id3"><span id="id1"></span>[1]_</span></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bookkeeper.Book.finalize">
+<tt class="descname">finalize</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/bookkeeper.html#Book.finalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bookkeeper.Book.finalize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bookkeeper.Book.nav_to_json">
+<tt class="descname">nav_to_json</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/bookkeeper.html#Book.nav_to_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bookkeeper.Book.nav_to_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>print relevant data to json object, this function is reserved for 
+network purpose</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bookkeeper.Book.prepare">
+<tt class="descname">prepare</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/bookkeeper.html#Book.prepare"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bookkeeper.Book.prepare" title="Permalink to this definition">¶</a></dt>
+<dd><p>prepare the book for next day&#8217;s use</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bookkeeper.Book.print_daily_summary">
+<tt class="descname">print_daily_summary</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/bookkeeper.html#Book.print_daily_summary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bookkeeper.Book.print_daily_summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>print relevant data to screen, for debug purpose</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -105,7 +144,7 @@
         <li class="right" >
           <a href="bindata.html" title="bindata module"
              >previous</a> |</li>
-        <li><a href="index.html">. 0.9.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">backbin 0.9 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

@@ -1,10 +1,10 @@
-.. . documentation master file, created by
-   sphinx-quickstart on Sat Sep 20 16:36:16 2014.
+.. backbin documentation master file, created by
+   sphinx-quickstart on Sat Sep 20 22:45:41 2014.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to .'s documentation!
-=============================
+Welcome to backbin's documentation!
+===================================
 
 Contents:
 
@@ -24,7 +24,6 @@ Contents:
    portfolio
    randomforcast
    server
-   signal
    strategy
    test
 

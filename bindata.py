@@ -120,14 +120,21 @@ class BackTestData(object):
         else:
             self.start_ind = start
         self._stock = target.stock
+        self.code = target.code
         sys.stdout.write(" constituting data panel... ")
         self.beg = self._stock.ix[0].index[self.start_ind].to_datetime()
         self.end = self._stock.ix[0].index[-1].to_datetime()
         self.now = self.beg
+        
+        self.now_ind = 0
+        # now_ind is for indexing "data", not "_stock" ; 
+        # now_ind = ind - start_ind
+        
         self.ind = self.start_ind
+        self.date = self._stock.major_axis
+        self.data_index = self.date[self.start_ind:]
         self.data = self._stock.ix[:, self.start_ind:self.ind+1]
         self.proceed = "OK"
-        self.date = self._stock.major_axis
         print "success"
 
     def update_bars(self):
@@ -135,11 +142,16 @@ class BackTestData(object):
         Pushes the latest bar to the latest_symbol_data structure
         for all symbols in the symbol list.
         """
-        # increment index by 1
+        # increment both index by 1
         self.ind += 1
+        self.now_ind += 1
+        
+        # core: update data view
         self.data = self._stock.ix[:, self.start_ind:self.ind+1]
+        
         # set now to be current date
         self.now = self.data.ix[0].index[-1].to_datetime()
+        
         # if we are reaching the end, raise the stop flag
         if (self.end - self.now) < timedelta(days=1):
             self.proceed = "STOP"
@@ -163,11 +175,29 @@ class BackTestData(object):
                 print "WARNING: following symbols are not in database and ignored"
                 print voidcodelist
         self.latest = self.data.ix[newcodelist, -1]
+        return self.latest
 
+    def pick_bar(self, code):
+        """pick out OHLCVA of a symbol
+        
+        Parameters:
+        -------
+        code:
+            the symbol you want, eg: 000001, 300693
+        """
+        if code not in self.code:
+            print "ERROR: cannot find your code "+code
+            return
+        else:
+            return self._stock.ix[code]
 
     def reset(self):
-        """
-        Restore all data status to original.
+        """pick out OHLCVA of a symbol
+        
+        Purpose:
+        -------
+        Restore evertything to original state.
+        Ready for next round of backtest
         """
         sys.stdout.write(" reset context... ")
         self.beg = self._stock.ix[0].index[self.start_ind].to_datetime()
@@ -178,5 +208,6 @@ class BackTestData(object):
         self.proceed = "OK"
         self.date = self._stock.major_axis
         print "success"
+
 
 raw = DataHandler(directory='~/data/')

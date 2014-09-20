@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Overview: module code &mdash; backbin 0.9 documentation</title>
+    <title>backta &mdash; backbin 0.9 documentation</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -23,7 +23,8 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="backbin 0.9 documentation" href="../index.html" /> 
+    <link rel="top" title="backbin 0.9 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -35,7 +36,8 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../index.html">backbin 0.9 documentation</a> &raquo;</li> 
+        <li><a href="../index.html">backbin 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -44,21 +46,23 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <h1>All modules for which code is available</h1>
-<ul><li><a href="backta.html">backta</a></li>
-<li><a href="backtest.html">backtest</a></li>
-<li><a href="bindata.html">bindata</a></li>
-<li><a href="bookkeeper.html">bookkeeper</a></li>
-<li><a href="constraint.html">constraint</a></li>
-<li><a href="event.html">event</a></li>
-<li><a href="hdf5util.html">hdf5util</a></li>
-<li><a href="optimize.html">optimize</a></li>
-<li><a href="order.html">order</a></li>
-<li><a href="portfolio.html">portfolio</a></li>
-<li><a href="server.html">server</a></li>
-<li><a href="strategy.html">strategy</a></li>
-<li><a href="test.html">test</a></li>
-</ul>
+  <h1>Source code for backta</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Sat Sep 20 02:07:32 2014</span>
+
+<span class="sd">@author: fanbin</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+
+<div class="viewcode-block" id="talib_apply"><a class="viewcode-back" href="../backta.html#backta.talib_apply">[docs]</a><span class="k">def</span> <span class="nf">talib_apply</span><span class="p">(</span><span class="n">panel</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">functor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">functor</span><span class="p">(</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">panel</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">code</span><span class="p">,:,</span><span class="n">obj</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">panel</span><span class="o">.</span><span class="n">index</span><span class="p">)</span></div>
+</pre></div>
 
           </div>
         </div>
@@ -91,7 +95,8 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../index.html">backbin 0.9 documentation</a> &raquo;</li> 
+        <li><a href="../index.html">backbin 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

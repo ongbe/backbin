@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>backtest module &mdash; . 0.9.2 documentation</title>
+    <title>backtest module &mdash; backbin 0.9 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.9.2',
+        VERSION:     '0.9',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title=". 0.9.2 documentation" href="index.html" />
+    <link rel="top" title="backbin 0.9 documentation" href="index.html" />
     <link rel="next" title="bindata module" href="bindata.html" />
     <link rel="prev" title="backta module" href="backta.html" /> 
   </head>
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="backta.html" title="backta module"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">. 0.9.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">backbin 0.9 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -52,8 +52,48 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="backtest-module">
-<h1>backtest module<a class="headerlink" href="#backtest-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-backtest">
+<span id="backtest-module"></span><h1>backtest module<a class="headerlink" href="#module-backtest" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="backtest.Portfolio">
+<em class="property">class </em><tt class="descclassname">backtest.</tt><tt class="descname">Portfolio</tt><a class="reference internal" href="_modules/backtest.html#Portfolio"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backtest.Portfolio" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>An abstract base class representing a portfolio of
+positions (including both instruments and cash), determined
+on the basis of a set of signals provided by a Strategy.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="backtest.Portfolio.backtest_portfolio">
+<tt class="descname">backtest_portfolio</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/backtest.html#Portfolio.backtest_portfolio"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backtest.Portfolio.backtest_portfolio" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the logic to generate the trading orders
+and subsequent equity curve (i.e. growth of total equity),
+as a sum of holdings and cash, and the bar-period returns
+associated with this curve based on the &#8216;positions&#8217; DataFrame.</p>
+<p>Produces a portfolio object that can be examined by
+other classes/functions.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="backtest.Strategy">
+<em class="property">class </em><tt class="descclassname">backtest.</tt><tt class="descname">Strategy</tt><a class="reference internal" href="_modules/backtest.html#Strategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backtest.Strategy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Strategy is an abstract base class providing an interface for
+all subsequent (inherited) trading strategies.</p>
+<p>The goal of a (derived) Strategy object is to output a list of signals,
+which has the form of a time series indexed pandas DataFrame.</p>
+<p>In this instance only a single symbol/instrument is supported.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="backtest.Strategy.generate_signals">
+<tt class="descname">generate_signals</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/backtest.html#Strategy.generate_signals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backtest.Strategy.generate_signals" title="Permalink to this definition">¶</a></dt>
+<dd><p>An implementation is required to return the DataFrame of symbols
+containing the signals to go long, short or hold (1, -1 or 0).</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -105,7 +145,7 @@
         <li class="right" >
           <a href="backta.html" title="backta module"
              >previous</a> |</li>
-        <li><a href="index.html">. 0.9.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">backbin 0.9 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

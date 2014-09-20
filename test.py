@@ -22,7 +22,8 @@ def task_backtest():
     function_list = {}
     exec generate_signals in function_list
     # Create a portfolio
-    portfolio = MarketOnClosePortfolio(symbol, bars, rfs, opt, initial_capital=1000000.0)
+    portfolio = MarketOnClosePortfolio(symbol, bars, rfs, opt, \
+        initial_capital=1000000.0)
     exec generate_signals in function_list
 
     portfolio.strategy.sig_generator = function_list["generate_signals"]

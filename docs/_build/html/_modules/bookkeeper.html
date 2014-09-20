@@ -1,0 +1,275 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bookkeeper &mdash; backbin 0.9 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="backbin 0.9 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">backbin 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for bookkeeper</h1><div class="highlight"><pre>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;fanbin&#39;</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+
+<div class="viewcode-block" id="Book"><a class="viewcode-back" href="../bookkeeper.html#bookkeeper.Book">[docs]</a><span class="k">class</span> <span class="nc">Book</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symbol</span><span class="p">,</span> <span class="n">bars</span><span class="p">,</span> <span class="n">initial_capital</span><span class="o">=</span><span class="mf">1000000.00</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Book Class initialization</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        symbol : list of strings</span>
+<span class="sd">            list of interested symbols</span>
+<span class="sd">        bars : </span>
+<span class="sd">            pass in data so that I can know its structures</span>
+<span class="sd">        initial_capital:</span>
+<span class="sd">            Well, we need some initial capital for investment</span>
+<span class="sd">            default value is 1 million</span>
+<span class="sd"> </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span> <span class="o">=</span> <span class="n">symbol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cash</span> <span class="o">=</span> <span class="n">initial_capital</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">holding</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_ind</span> <span class="o">=</span> <span class="n">bars</span><span class="o">.</span><span class="n">now_ind</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">bars</span><span class="o">.</span><span class="n">beg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop_ind</span> <span class="o">=</span> <span class="n">bars</span><span class="o">.</span><span class="n">now_ind</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop</span> <span class="o">=</span> <span class="n">bars</span><span class="o">.</span><span class="n">beg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">bars</span><span class="o">.</span><span class="n">data_index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">bars</span><span class="o">.</span><span class="n">end</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">now</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_capital</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">initial_capital</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_capital</span>
+        <span class="c">#self.date_list = bars.date</span>
+        <span class="c"># following is book structure</span>
+        <span class="c"># note we add asset, security and cash to symbols, they are for </span>
+        <span class="c"># compilation purpose Asset = Security + Cash, Security = $\Sum$ symbol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">book</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Panel</span><span class="p">(</span><span class="n">items</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;Asset&#39;</span><span class="p">,</span> <span class="s">&#39;Security&#39;</span><span class="p">,</span> <span class="s">&#39;Cash&#39;</span><span class="p">]</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> \
+                             <span class="n">major_axis</span><span class="o">=</span><span class="n">bars</span><span class="o">.</span><span class="n">data_index</span><span class="p">,</span>
+                             <span class="n">minor_axis</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;sig&quot;</span><span class="p">,</span> <span class="s">&quot;ext&quot;</span><span class="p">,</span> <span class="s">&quot;Pos&quot;</span><span class="p">,</span> <span class="s">&quot;PrePos&quot;</span><span class="p">,</span> \
+                             <span class="s">&quot;TargetPos&quot;</span><span class="p">,</span> <span class="s">&quot;mmk&quot;</span><span class="p">,</span> <span class="s">&quot;Cost&quot;</span><span class="p">,</span> <span class="s">&quot;Close&quot;</span><span class="p">,</span> \
+                             <span class="s">&quot;PreClose&quot;</span><span class="p">,</span> <span class="s">&quot;DeltaPL&quot;</span><span class="p">,</span> <span class="s">&quot;PL&quot;</span><span class="p">,</span> <span class="s">&quot;AvgLife&quot;</span><span class="p">,</span> <span class="s">&quot;Slip&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">book</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bar</span> <span class="o">=</span> <span class="n">bars</span>
+        <span class="c"># ind is a poiner, showing current backtest step (a.k.a where are you)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bar</span><span class="o">.</span><span class="n">now_ind</span>
+        <span class="c"># initial cash</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&#39;Cash&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;Pos&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cash</span>
+        <span class="c"># initial security is void</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&#39;Security&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;Pos&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&#39;Asset&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;Pos&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cash</span>
+
+<div class="viewcode-block" id="Book.prepare"><a class="viewcode-back" href="../bookkeeper.html#bookkeeper.Book.prepare">[docs]</a>    <span class="k">def</span> <span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;prepare the book for next day&#39;s use</span>
+<span class="sd">        </span>
+<span class="sd">        Notes:</span>
+<span class="sd">        -------</span>
+<span class="sd">        this function is fairly import to prepare book for next&#39;s use, </span>
+<span class="sd">        call it before start everys backtest time unit</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bar</span><span class="o">.</span><span class="n">now_ind</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop_ind</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;Close&#39;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">bar</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;Close&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span> <span class="c"># if today is not the first day</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;PreClose&#39;</span><span class="p">]</span> <span class="o">=</span>\
+                <span class="bp">self</span><span class="o">.</span><span class="n">bar</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="s">&#39;Close&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;Pos&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;Pos&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;PrePos&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;Pos&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&#39;Cash&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;Pos&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&#39;Cash&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;Pos&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&#39;Cash&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;PrePos&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&#39;Cash&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;Pos&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&#39;Cash&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;DeltaPL&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&#39;Asset&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;Pos&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&#39;Asset&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;Pos&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&#39;Asset&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;PrePos&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&#39;Asset&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;Pos&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&quot;Asset&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&quot;DeltaPL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&#39;Security&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;Pos&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&#39;Security&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;Pos&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&#39;Security&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;PrePos&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&#39;Security&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;Pos&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&quot;Security&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&quot;DeltaPL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+</div>
+<div class="viewcode-block" id="Book.compile"><a class="viewcode-back" href="../bookkeeper.html#bookkeeper.Book.compile">[docs]</a>    <span class="k">def</span> <span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compile book, should be called every time unit</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        </span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This is an example of autodoc using numpydoc, the Numpy documentation format</span>
+<span class="sd">        with the numpydoc extension [1]_</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd"> </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span> <span class="c"># if today is not the first day</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&quot;DeltaPL&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;Close&#39;</span><span class="p">]</span>  \
+                <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;PreClose&#39;</span><span class="p">])</span> \
+                <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;PrePos&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&quot;Slip&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;Close&#39;</span><span class="p">]</span> \
+                <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;mmk&#39;</span><span class="p">])</span> \
+                <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;Pos&#39;</span><span class="p">]</span> \
+                <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;PrePos&#39;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&quot;PL&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&quot;Slip&quot;</span><span class="p">]</span> <span class="o">+</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&quot;DeltaPL&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&quot;Security&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&quot;DeltaPL&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">numpy</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&quot;DeltaPL&quot;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&quot;Security&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&quot;PL&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">numpy</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&quot;PL&quot;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&quot;Security&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&quot;Slip&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">numpy</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&quot;Slip&quot;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&quot;Security&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&quot;Pos&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">numpy</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&quot;Pos&quot;</span><span class="p">]</span> <span class="o">*</span> \
+                 <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;Close&#39;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&quot;Asset&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&quot;Pos&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&quot;Security&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&quot;Pos&quot;</span><span class="p">]</span> <span class="o">+</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&quot;Cash&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&quot;Pos&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&quot;Asset&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&quot;DeltaPL&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&quot;Asset&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&quot;Pos&quot;</span><span class="p">]</span><span class="o">/</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&quot;Asset&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&quot;PrePos&quot;</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span>
+</div>
+<div class="viewcode-block" id="Book.print_daily_summary"><a class="viewcode-back" href="../bookkeeper.html#bookkeeper.Book.print_daily_summary">[docs]</a>    <span class="k">def</span> <span class="nf">print_daily_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;print_daily_summary</span>
+<span class="sd">        </span>
+<span class="sd">        Purpose:</span>
+<span class="sd">        -----</span>
+<span class="sd">        print relevant data to screen, for debug purpose</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">total_asset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&#39;Asset&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;Pos&#39;</span><span class="p">]</span>
+        <span class="k">print</span> <span class="s">&quot;Date: </span><span class="si">%s</span><span class="s">   Total:</span><span class="si">%.2f</span><span class="s">  Security:</span><span class="si">%.2f</span><span class="s">   Cash:</span><span class="si">%.2f</span><span class="s">  NAV:</span><span class="si">%.4f</span><span class="s">&quot;</span><span class="o">%</span>\
+              <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">]</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">&#39;%Y-%m-</span><span class="si">%d</span><span class="s">&#39;</span><span class="p">),</span>
+               <span class="n">total_asset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&#39;Security&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;Pos&#39;</span><span class="p">],</span> \
+               <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&#39;Cash&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;Pos&#39;</span><span class="p">],</span>
+               <span class="n">total_asset</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_capital</span><span class="p">)</span>
+               </div>
+<div class="viewcode-block" id="Book.finalize"><a class="viewcode-back" href="../bookkeeper.html#bookkeeper.Book.finalize">[docs]</a>    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stop_ind</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Book.nav_to_json"><a class="viewcode-back" href="../bookkeeper.html#bookkeeper.Book.nav_to_json">[docs]</a>    <span class="k">def</span> <span class="nf">nav_to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;nav_to_json</span>
+<span class="sd">        </span>
+<span class="sd">        Purpose:</span>
+<span class="sd">        -----</span>
+<span class="sd">        print relevant data to json object, this function is reserved for </span>
+<span class="sd">        network purpose</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ren</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">series</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">nav</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_ind</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop_ind</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">total_asset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&#39;Asset&#39;</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="s">&#39;Pos&#39;</span><span class="p">]</span>
+            <span class="n">series</span><span class="o">.</span><span class="n">append</span><span class="p">([</span> \
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">()</span> <span class="o">-</span> \
+                <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">1970</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span><span class="o">*</span> <span class="mi">1000</span><span class="p">,</span> \
+                <span class="n">total_asset</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_capital</span><span class="p">])</span>
+            <span class="n">nav</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nav</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&#39;Asset&#39;</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="s">&#39;DeltaPL&#39;</span><span class="p">])</span>
+        <span class="n">ren</span><span class="p">[</span><span class="s">&quot;start&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">start_ind</span><span class="p">]</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">&quot;%b </span><span class="si">%d</span><span class="s"> %Y&quot;</span><span class="p">)</span>
+        <span class="n">ren</span><span class="p">[</span><span class="s">&quot;end&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">stop_ind</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">&quot;%b </span><span class="si">%d</span><span class="s"> %Y&quot;</span><span class="p">)</span>
+        <span class="n">ren</span><span class="p">[</span><span class="s">&quot;num&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_ind</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop_ind</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">ren</span><span class="p">[</span><span class="s">&quot;nav&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="s">&quot;{:8.2f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">total_asset</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_capital</span><span class="p">))</span>
+        <span class="n">ren</span><span class="p">[</span><span class="s">&quot;sharpe&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="s">&quot;{:8.2f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">nav</span><span class="p">)</span><span class="o">/</span><span class="n">numpy</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">nav</span><span class="p">)</span> <span class="p">))</span>
+        <span class="n">ren</span><span class="p">[</span><span class="s">&quot;anlz&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="s">&quot;{:8.2f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">((</span><span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">ren</span><span class="p">[</span><span class="s">&quot;nav&quot;</span><span class="p">]),</span> <span class="mf">250.0</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">ren</span><span class="p">[</span><span class="s">&quot;num&quot;</span><span class="p">]))</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="p">))</span>
+        <span class="n">ren</span><span class="p">[</span><span class="s">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">series</span>
+        <span class="n">ren</span><span class="p">[</span><span class="s">&quot;max_drawdown&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">ren</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">backbin 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Bin Fan.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

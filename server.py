@@ -6,7 +6,7 @@ from optimize import NaiveOptimizer
 from constraint import Constraint
 import bindata
 import json
-from gearman import GearmanWorker, DataEncoder
+from gearman import GearmanWorker
 
 gm_worker = GearmanWorker(['127.0.0.1:4730'])
 
@@ -26,7 +26,8 @@ def task_backtest(gearman_worker, gearman_job):
     exec signal_generator in function_list
 
     # Create a portfolio
-    portfolio = MarketOnClosePortfolio(symbol, bars, rfs, opt, initial_capital=1000000.0)
+    portfolio = MarketOnClosePortfolio(symbol, bars, rfs, \
+                opt, initial_capital=1000000.0)
     portfolio.strategy.sig_generator = function_list["generate_signals"]
     # Backtest our portfolio and store result in book
     book = portfolio.backtest_portfolio(worker=gearman_worker, job=gearman_job)

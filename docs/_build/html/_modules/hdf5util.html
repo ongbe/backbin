@@ -1,0 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>hdf5util &mdash; backbin 0.9 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="backbin 0.9 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">backbin 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for hdf5util</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Wed Sep 17 16:47:51 2014</span>
+
+<span class="sd">@author: fanbin</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span><span class="p">;</span>
+<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span>
+<span class="kn">import</span> <span class="nn">h5py</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+<span class="kn">from</span> <span class="nn">astropy.io.misc.hdf5</span> <span class="kn">import</span> <span class="n">write_table_hdf5</span><span class="p">,</span><span class="n">read_table_hdf5</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">from</span> <span class="nn">bindata</span> <span class="kn">import</span> <span class="n">DataHandler</span>
+
+<span class="n">quote_col</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Open&#39;</span><span class="p">,</span><span class="s">&#39;Close&#39;</span><span class="p">,</span><span class="s">&#39;High&#39;</span><span class="p">,</span><span class="s">&#39;Low&#39;</span><span class="p">,</span><span class="s">&#39;Pre&#39;</span><span class="p">,</span><span class="s">&#39;Vol&#39;</span><span class="p">,</span><span class="s">&#39;Amt&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="WriteToHDF"><a class="viewcode-back" href="../hdf5util.html#hdf5util.WriteToHDF">[docs]</a><span class="k">def</span> <span class="nf">WriteToHDF</span><span class="p">(</span><span class="n">panel</span><span class="p">,</span> <span class="n">desp</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; WriteToHDF: write data to HDF</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">code</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">;</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span>
+    <span class="c"># attributes prepared for HDF</span>
+    <span class="n">mt</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;version&quot;</span><span class="p">:</span><span class="s">&quot;3.0&quot;</span><span class="p">,</span> <span class="s">&quot;CLASS&quot;</span><span class="p">:</span><span class="s">&quot;TABLE&quot;</span><span class="p">,</span> 
+    <span class="s">&quot;TITLE&quot;</span><span class="p">:</span><span class="s">&quot;quote&quot;</span><span class="p">,</span> <span class="s">&quot;FIELD_0_NAME&quot;</span><span class="p">:</span><span class="s">&quot;TIMESTAMP&quot;</span><span class="p">,</span>
+    <span class="s">&quot;FIELD_1_NAME&quot;</span><span class="p">:</span><span class="s">&quot;Open&quot;</span><span class="p">,</span><span class="s">&quot;FIELD_2_NAME&quot;</span><span class="p">:</span><span class="s">&quot;Close&quot;</span><span class="p">,</span>
+    <span class="s">&quot;FIELD_3_NAME&quot;</span><span class="p">:</span><span class="s">&quot;High&quot;</span><span class="p">,</span> <span class="s">&quot;FIELD_4_NAME&quot;</span><span class="p">:</span><span class="s">&quot;Low&quot;</span><span class="p">,</span><span class="s">&quot;FIELD_5_NAME&quot;</span><span class="p">:</span><span class="s">&quot;Prev&quot;</span><span class="p">,</span>
+    <span class="s">&quot;FIELD_6_NAME&quot;</span><span class="p">:</span><span class="s">&quot;Vol&quot;</span><span class="p">,</span> <span class="s">&quot;FIELD_7_NAME&quot;</span><span class="p">:</span><span class="s">&quot;Amt&quot;</span><span class="p">}</span>
+    <span class="c"># loop to write stock by stock</span>
+    <span class="k">for</span> <span class="n">tp</span> <span class="ow">in</span> <span class="n">panel</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+        <span class="n">code</span><span class="o">=</span><span class="n">tp</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="n">tp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">head</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">((</span><span class="n">ind</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&#39;uint64&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1e6</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&#39;uint64&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">belly</span><span class="o">=</span><span class="n">tp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">();</span>
+        <span class="n">dt</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">head</span><span class="p">,</span><span class="n">belly</span><span class="p">))</span>
+        <span class="n">col</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s">&#39;TIMESTAMP&#39;</span><span class="p">],</span> <span class="n">quote_col</span><span class="p">)</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">dt</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">A1</span><span class="p">]</span>
+        <span class="c">#  ----this line consumes much time, needs optimization</span>
+        <span class="n">tb</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">col</span><span class="p">,</span> <span class="n">meta</span><span class="o">=</span><span class="n">mt</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;i8&#39;</span><span class="p">,</span><span class="s">&#39;f4&#39;</span><span class="p">,</span><span class="s">&#39;f4&#39;</span><span class="p">,</span><span class="s">&#39;f4&#39;</span><span class="p">,</span><span class="s">&#39;f4&#39;</span><span class="p">,</span><span class="s">&#39;f4&#39;</span><span class="p">,</span><span class="s">&#39;f4&#39;</span><span class="p">,</span><span class="s">&#39;f4&#39;</span><span class="p">))</span>
+        <span class="c">#  ---- end -------------</span>
+        <span class="n">grp</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span><span class="s">&quot;/stock/&quot;</span><span class="o">+</span><span class="n">code</span><span class="p">)</span>
+        <span class="n">write_table_hdf5</span><span class="p">(</span><span class="n">table</span><span class="o">=</span><span class="n">tb</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="n">grp</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s">&#39;quote&#39;</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">grp</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s">&#39;code&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">code</span>
+        <span class="n">grp</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">desp</span><span class="p">[</span><span class="n">code</span><span class="p">][</span><span class="s">&#39;name&#39;</span><span class="p">]</span>
+        <span class="n">grp</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s">&#39;gics&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">desp</span><span class="p">[</span><span class="n">code</span><span class="p">][</span><span class="s">&#39;gics&#39;</span><span class="p">]</span>
+        <span class="n">grp</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s">&#39;first&#39;</span><span class="p">]</span><span class="o">=</span> <span class="n">head</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">grp</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s">&#39;last&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">head</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">grp</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s">&#39;beg&#39;</span><span class="p">]</span><span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcfromtimestamp</span><span class="p">(</span><span class="n">head</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mi">1000</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">&#39;%Y%m</span><span class="si">%d</span><span class="s">.%H:%M:%S&#39;</span><span class="p">)</span>
+        <span class="n">grp</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s">&#39;end&#39;</span><span class="p">]</span><span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcfromtimestamp</span><span class="p">(</span><span class="n">head</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="mi">1000</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">&#39;%Y%m</span><span class="si">%d</span><span class="s">.%H:%M:%S&#39;</span><span class="p">)</span>
+        <span class="n">grp</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s">&#39;nrow&#39;</span><span class="p">]</span><span class="o">=</span> <span class="n">ind</span><span class="o">.</span><span class="n">size</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    </div>
+<div class="viewcode-block" id="ReadFromHDF"><a class="viewcode-back" href="../hdf5util.html#hdf5util.ReadFromHDF">[docs]</a><span class="k">def</span> <span class="nf">ReadFromHDF</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; ReadFromHDF: read data from HDF</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pn</span> <span class="o">=</span> <span class="n">DataHandler</span><span class="p">()</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span>
+    
+    <span class="c"># read stock data</span>
+    <span class="n">rgroup</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s">&#39;stock&#39;</span><span class="p">]</span>
+    
+    <span class="n">grps</span> <span class="o">=</span> <span class="n">rgroup</span><span class="o">.</span><span class="n">keys</span><span class="p">();</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">grps</span><span class="p">:</span>
+        <span class="n">grp</span> <span class="o">=</span> <span class="n">rgroup</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="n">attrs</span><span class="o">=</span> <span class="n">grp</span><span class="o">.</span><span class="n">attrs</span>
+        <span class="n">astro_tb</span> <span class="o">=</span> <span class="n">read_table_hdf5</span><span class="p">(</span><span class="n">grp</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s">&#39;quote&#39;</span><span class="p">)</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">astro_tb</span><span class="p">[</span><span class="s">&#39;TIMESTAMP&#39;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">quote_col</span><span class="p">:</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">astro_tb</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">m</span><span class="p">,</span><span class="n">t</span><span class="p">))</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">m</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">unit</span><span class="o">=</span><span class="s">&#39;ms&#39;</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">m</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="n">df</span><span class="o">=</span><span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">quote_col</span><span class="p">)</span>
+        <span class="n">pn</span><span class="o">.</span><span class="n">stock</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span>
+        <span class="n">pn</span><span class="o">.</span><span class="n">code</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="n">pn</span><span class="o">.</span><span class="n">desp</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">pn</span><span class="o">.</span><span class="n">desp</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s">&#39;gics&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;gics&#39;</span><span class="p">)</span>
+        <span class="n">pn</span><span class="o">.</span><span class="n">desp</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;name&#39;</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">stock</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">Panel</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">stock</span><span class="p">)</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">date</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">stock</span><span class="o">.</span><span class="n">major_axis</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">status_table</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">pn</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">pn</span><span class="o">.</span><span class="n">code</span><span class="p">)</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">compile_table</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">pn</span> </div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">backbin 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Bin Fan.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

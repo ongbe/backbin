@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>strategy module &mdash; . 0.9.2 documentation</title>
+    <title>strategy module &mdash; backbin 0.9 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.9.2',
+        VERSION:     '0.9',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,9 +23,9 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title=". 0.9.2 documentation" href="index.html" />
+    <link rel="top" title="backbin 0.9 documentation" href="index.html" />
     <link rel="next" title="test module" href="test.html" />
-    <link rel="prev" title="signal module" href="signal.html" /> 
+    <link rel="prev" title="server module" href="server.html" /> 
   </head>
   <body>
     <div class="related">
@@ -41,9 +41,9 @@
           <a href="test.html" title="test module"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="signal.html" title="signal module"
+          <a href="server.html" title="server module"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">. 0.9.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">backbin 0.9 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -52,8 +52,46 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="strategy-module">
-<h1>strategy module<a class="headerlink" href="#strategy-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-strategy">
+<span id="strategy-module"></span><h1>strategy module<a class="headerlink" href="#module-strategy" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="strategy.CurrentStrategy">
+<em class="property">class </em><tt class="descclassname">strategy.</tt><tt class="descname">CurrentStrategy</tt><big>(</big><em>symbols</em>, <em>bars</em><big>)</big><a class="reference internal" href="_modules/strategy.html#CurrentStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#strategy.CurrentStrategy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="backtest.html#backtest.Strategy" title="backtest.Strategy"><tt class="xref py py-class docutils literal"><span class="pre">backtest.Strategy</span></tt></a></p>
+<p>Derives from Strategy to produce a set of signals that
+are randomly generated long/shorts. Clearly a nonsensical
+strategy, but perfectly acceptable for demonstrating the
+backtesting infrastructure!</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="strategy.CurrentStrategy.all_halt">
+<tt class="descname">all_halt</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/strategy.html#CurrentStrategy.all_halt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#strategy.CurrentStrategy.all_halt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="strategy.CurrentStrategy.check_halt">
+<tt class="descname">check_halt</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/strategy.html#CurrentStrategy.check_halt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#strategy.CurrentStrategy.check_halt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="strategy.CurrentStrategy.generate_signals">
+<tt class="descname">generate_signals</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/strategy.html#CurrentStrategy.generate_signals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#strategy.CurrentStrategy.generate_signals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a naive signal</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="strategy.CurrentStrategy.halt">
+<tt class="descname">halt</tt><big>(</big><em>sym</em><big>)</big><a class="reference internal" href="_modules/strategy.html#CurrentStrategy.halt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#strategy.CurrentStrategy.halt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="strategy.CurrentStrategy.sig_generator">
+<tt class="descname">sig_generator</tt><big>(</big><em>signals</em><big>)</big><a class="reference internal" href="_modules/strategy.html#CurrentStrategy.sig_generator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#strategy.CurrentStrategy.sig_generator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a naive signal</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -63,8 +101,8 @@
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="signal.html"
-                        title="previous chapter">signal module</a></p>
+  <p class="topless"><a href="server.html"
+                        title="previous chapter">server module</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="test.html"
                         title="next chapter">test module</a></p>
@@ -103,9 +141,9 @@
           <a href="test.html" title="test module"
              >next</a> |</li>
         <li class="right" >
-          <a href="signal.html" title="signal module"
+          <a href="server.html" title="server module"
              >previous</a> |</li>
-        <li><a href="index.html">. 0.9.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">backbin 0.9 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

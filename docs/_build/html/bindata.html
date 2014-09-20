@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>bindata module &mdash; . 0.9.2 documentation</title>
+    <title>bindata module &mdash; backbin 0.9 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.9.2',
+        VERSION:     '0.9',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title=". 0.9.2 documentation" href="index.html" />
+    <link rel="top" title="backbin 0.9 documentation" href="index.html" />
     <link rel="next" title="bookkeeper module" href="bookkeeper.html" />
     <link rel="prev" title="backtest module" href="backtest.html" /> 
   </head>
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="backtest.html" title="backtest module"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">. 0.9.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">backbin 0.9 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -52,8 +52,60 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="bindata-module">
-<h1>bindata module<a class="headerlink" href="#bindata-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-bindata">
+<span id="bindata-module"></span><h1>bindata module<a class="headerlink" href="#module-bindata" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="bindata.BackTestData">
+<em class="property">class </em><tt class="descclassname">bindata.</tt><tt class="descname">BackTestData</tt><big>(</big><em>target</em>, <em>start=None</em><big>)</big><a class="reference internal" href="_modules/bindata.html#BackTestData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bindata.BackTestData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="bindata.BackTestData.get_latest_bars">
+<tt class="descname">get_latest_bars</tt><big>(</big><em>codelist=[]</em><big>)</big><a class="reference internal" href="_modules/bindata.html#BackTestData.get_latest_bars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bindata.BackTestData.get_latest_bars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the last N bars from the latest_symbol list,
+or N-k if less available.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bindata.BackTestData.reset">
+<tt class="descname">reset</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/bindata.html#BackTestData.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bindata.BackTestData.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restore all data status to original.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bindata.BackTestData.update_bars">
+<tt class="descname">update_bars</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/bindata.html#BackTestData.update_bars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bindata.BackTestData.update_bars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pushes the latest bar to the latest_symbol_data structure
+for all symbols in the symbol list.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bindata.DataHandler">
+<em class="property">class </em><tt class="descclassname">bindata.</tt><tt class="descname">DataHandler</tt><big>(</big><em>directory=None</em>, <em>target=None</em>, <em>codelist=[]</em><big>)</big><a class="reference internal" href="_modules/bindata.html#DataHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bindata.DataHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>DataHandler is an  base class providing an interface for
+all subsequent (inherited) data handlers (both live and historic).</p>
+<p>The goal of a (derived) DataHandler object is to output a generated
+set of bars (OLHCVI) for each symbol requested.</p>
+<p>This will replicate how a live strategy would function as current
+market data would be sent &#8220;down the pipe&#8221;. Thus a historic and live</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="bindata.DataHandler.compile_table">
+<tt class="descname">compile_table</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/bindata.html#DataHandler.compile_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bindata.DataHandler.compile_table" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bindata.DataHandler.init_from_dir">
+<tt class="descname">init_from_dir</tt><big>(</big><em>directory='./'</em>, <em>codelist=[]</em><big>)</big><a class="reference internal" href="_modules/bindata.html#DataHandler.init_from_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bindata.DataHandler.init_from_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize working environment
+Need to assign data directory, default: current directory</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -105,7 +157,7 @@
         <li class="right" >
           <a href="backtest.html" title="backtest module"
              >previous</a> |</li>
-        <li><a href="index.html">. 0.9.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">backbin 0.9 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

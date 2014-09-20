@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>portfolio module &mdash; . 0.9.2 documentation</title>
+    <title>portfolio module &mdash; backbin 0.9 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.9.2',
+        VERSION:     '0.9',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title=". 0.9.2 documentation" href="index.html" />
+    <link rel="top" title="backbin 0.9 documentation" href="index.html" />
     <link rel="next" title="randomforcast module" href="randomforcast.html" />
     <link rel="prev" title="order module" href="order.html" /> 
   </head>
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="order.html" title="order module"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">. 0.9.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">backbin 0.9 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -52,8 +52,70 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="portfolio-module">
-<h1>portfolio module<a class="headerlink" href="#portfolio-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-portfolio">
+<span id="portfolio-module"></span><h1>portfolio module<a class="headerlink" href="#module-portfolio" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="portfolio.MarketOnClosePortfolio">
+<em class="property">class </em><tt class="descclassname">portfolio.</tt><tt class="descname">MarketOnClosePortfolio</tt><big>(</big><em>symbol</em>, <em>bars</em>, <em>strategy</em>, <em>opt</em>, <em>initial_capital=100000.0</em><big>)</big><a class="reference internal" href="_modules/portfolio.html#MarketOnClosePortfolio"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#portfolio.MarketOnClosePortfolio" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="backtest.html#backtest.Portfolio" title="backtest.Portfolio"><tt class="xref py py-class docutils literal"><span class="pre">backtest.Portfolio</span></tt></a></p>
+<p>Inherits Portfolio to create a system that purchases 100 units of
+a particular symbol upon a long/short signal, assuming the market
+open price of a bar.</p>
+<p>symbol - A stock symbol which forms the basis of the portfolio.
+bars - A DataFrame of bars for a symbol set.
+signals - A pandas DataFrame of signals (1, 0, -1) for each symbol.
+initial_capital - The amount in cash at the start of the portfolio.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="portfolio.MarketOnClosePortfolio.backtest_portfolio">
+<tt class="descname">backtest_portfolio</tt><big>(</big><em>beg=0</em>, <em>end=0</em>, <em>worker=None</em>, <em>job=None</em><big>)</big><a class="reference internal" href="_modules/portfolio.html#MarketOnClosePortfolio.backtest_portfolio"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#portfolio.MarketOnClosePortfolio.backtest_portfolio" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs a portfolio from the positions DataFrame by</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="portfolio.MarketOnClosePortfolio.backtest_portfolio_external">
+<tt class="descname">backtest_portfolio_external</tt><big>(</big><em>beg=0</em>, <em>end=0</em><big>)</big><a class="reference internal" href="_modules/portfolio.html#MarketOnClosePortfolio.backtest_portfolio_external"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#portfolio.MarketOnClosePortfolio.backtest_portfolio_external" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs a portfolio from the positions DataFrame by</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="portfolio.MarketOnClosePortfolio.generate_positions">
+<tt class="descname">generate_positions</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/portfolio.html#MarketOnClosePortfolio.generate_positions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#portfolio.MarketOnClosePortfolio.generate_positions" title="Permalink to this definition">¶</a></dt>
+<dd><p>generate a list of expected positions of each symbol</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>symbol</strong> : list of strings</p>
+<blockquote>
+<div><p>list of interested symbols</p>
+</div></blockquote>
+<p><strong>bars :</strong></p>
+<blockquote>
+<div><p>pass in data so that I can know its structures</p>
+</div></blockquote>
+<p><strong>initial_capital:</strong></p>
+<blockquote class="last">
+<div><p>Well, we need some initial capital for investment
+default value is 1 million</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Creates a &#8216;positions&#8217; DataFrame that simply longs or shorts
+100 of the particular symbol based on the forecast signals of
+{1, 0, -1} from the signals DataFrame.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="portfolio.MarketOnClosePortfolio.loop">
+<tt class="descname">loop</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/portfolio.html#MarketOnClosePortfolio.loop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#portfolio.MarketOnClosePortfolio.loop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -105,7 +167,7 @@
         <li class="right" >
           <a href="order.html" title="order module"
              >previous</a> |</li>
-        <li><a href="index.html">. 0.9.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">backbin 0.9 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

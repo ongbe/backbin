@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>optimize &mdash; backbin 0.9 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="backbin 0.9 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">backbin 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for optimize</h1><div class="highlight"><pre>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;fanbin&#39;</span>
+<span class="kn">from</span> <span class="nn">constraint</span> <span class="kn">import</span> <span class="n">Constraint</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
+
+<div class="viewcode-block" id="Optimizer"><a class="viewcode-back" href="../optimize.html#optimize.Optimizer">[docs]</a><span class="k">class</span> <span class="nc">Optimizer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Strategy is an abstract base class providing an interface for</span>
+<span class="sd">    all subsequent (inherited) trading strategies.</span>
+
+<span class="sd">    The goal of a (derived) Strategy object is to output a list of signals,</span>
+<span class="sd">    which has the form of a time series indexed pandas DataFrame.</span>
+
+<span class="sd">    In this instance only a single symbol/instrument is supported.&quot;&quot;&quot;</span>
+
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
+
+    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="Optimizer.gen_positions"><a class="viewcode-back" href="../optimize.html#optimize.Optimizer.gen_positions">[docs]</a>    <span class="k">def</span> <span class="nf">gen_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signals</span><span class="p">,</span> <span class="n">book</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;An implementation is required to return the DataFrame of symbols</span>
+<span class="sd">        containing the signals to go long, short or hold (1, -1 or 0).&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Must implement gen_position()!&quot;</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="NaiveOptimizer"><a class="viewcode-back" href="../optimize.html#optimize.NaiveOptimizer">[docs]</a><span class="k">class</span> <span class="nc">NaiveOptimizer</span><span class="p">(</span><span class="n">Optimizer</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constraints</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span> <span class="o">=</span> <span class="n">constraints</span>
+
+<div class="viewcode-block" id="NaiveOptimizer.gen_positions"><a class="viewcode-back" href="../optimize.html#optimize.NaiveOptimizer.gen_positions">[docs]</a>    <span class="k">def</span> <span class="nf">gen_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signals</span><span class="p">,</span> <span class="n">book</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;generate expected position of each symbol</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        signals : signals of each symbol</span>
+
+<span class="sd">        book:</span>
+<span class="sd">            pass in book reference so that I can record expected positions</span>
+<span class="sd">            into the book</span>
+<span class="sd"> </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">total_asset</span> <span class="o">=</span> <span class="n">book</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&quot;Asset&quot;</span><span class="p">,</span><span class="n">book</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span><span class="s">&#39;Pos&#39;</span><span class="p">]</span> <span class="o">+</span> \
+            <span class="n">book</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&quot;Cash&quot;</span><span class="p">,</span><span class="n">book</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span><span class="s">&#39;Pos&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">book</span><span class="o">.</span><span class="n">symbol</span><span class="p">:</span>
+            <span class="n">book</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">sym</span><span class="p">,</span> <span class="n">book</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;TargetPos&#39;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="n">book</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">sym</span><span class="p">,</span> <span class="n">book</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;PrePos&#39;</span><span class="p">]</span><span class="o">+</span><span class="n">signals</span><span class="p">[</span><span class="n">sym</span><span class="p">][</span><span class="s">&#39;intensity&#39;</span><span class="p">]</span>
+            <span class="c"># short selling constraints</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">short_sell</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">book</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">sym</span><span class="p">,</span> <span class="n">book</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;TargetPos&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">book</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">sym</span><span class="p">,</span> <span class="n">book</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;TargetPos&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="c"># leverage constraints</span>
+            <span class="n">borrow</span> <span class="o">=</span> <span class="p">(</span><span class="n">book</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&quot;Asset&quot;</span><span class="p">,</span><span class="n">book</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span><span class="s">&#39;Pos&#39;</span><span class="p">]</span> <span class="o">+</span> \
+                <span class="n">book</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&quot;Cash&quot;</span><span class="p">,</span><span class="n">book</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span><span class="s">&#39;Pos&#39;</span><span class="p">])</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">leverage</span>
+            <span class="k">if</span> <span class="n">book</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="s">&quot;Cash&quot;</span><span class="p">,</span><span class="n">book</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span><span class="s">&#39;Pos&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">borrow</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">book</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">sym</span><span class="p">,</span> <span class="n">book</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;TargetPos&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                    <span class="n">book</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">sym</span><span class="p">,</span> <span class="n">book</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;TargetPos&#39;</span><span class="p">]</span> \
+                    <span class="k">if</span> \
+                    <span class="n">book</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">sym</span><span class="p">,</span> <span class="n">book</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;TargetPos&#39;</span><span class="p">]</span> <span class="o">&lt;</span> \
+                    <span class="n">book</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">sym</span><span class="p">,</span> <span class="n">book</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;Pos&#39;</span><span class="p">]</span>  \
+                    <span class="k">else</span> \
+                    <span class="n">book</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">sym</span><span class="p">,</span> <span class="n">book</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="s">&#39;Pos&#39;</span><span class="p">]</span>
+        <span class="c"># drawdown constraints</span>
+            <span class="k">if</span> <span class="n">total_asset</span><span class="o">/</span><span class="n">book</span><span class="o">.</span><span class="n">initial_capital</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">drawdown</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">drawdown_mark</span> <span class="o">=</span> <span class="bp">True</span>
+
+</div></div>
+<div class="viewcode-block" id="NormalOptimizer"><a class="viewcode-back" href="../optimize.html#optimize.NormalOptimizer">[docs]</a><span class="k">class</span> <span class="nc">NormalOptimizer</span><span class="p">(</span><span class="n">Optimizer</span><span class="p">):</span>
+<div class="viewcode-block" id="NormalOptimizer.gen_positions"><a class="viewcode-back" href="../optimize.html#optimize.NormalOptimizer.gen_positions">[docs]</a>    <span class="k">def</span> <span class="nf">gen_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signals</span><span class="p">,</span> <span class="n">book</span><span class="p">):</span>
+        <span class="k">pass</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">backbin 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Bin Fan.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

@@ -25,21 +25,39 @@ class NaiveOptimizer(Optimizer):
         self.constraints = constraints
 
     def gen_positions(self, signals, book):
-        total_asset = book.book.ix["Asset",book.ind,'Pos'] + book.book.ix["Cash",book.ind,'Pos']
+        """generate expected position of each symbol
+        
+        Parameters
+        ----------
+        signals : signals of each symbol
+
+        book:
+            pass in book reference so that I can record expected positions
+            into the book
+ 
+        """
+        total_asset = book.book.ix["Asset",book.ind,'Pos'] + \
+            book.book.ix["Cash",book.ind,'Pos']
         for sym in book.symbol:
-            book.book.ix[sym, book.ind, 'TargetPos'] = book.book.ix[sym, book.ind, 'PrePos']+signals[sym]['intensity']
+            book.book.ix[sym, book.ind, 'TargetPos'] = \
+            book.book.ix[sym, book.ind, 'PrePos']+signals[sym]['intensity']
             # short selling constraints
             if not self.constraints.short_sell:
                 if book.book.ix[sym, book.ind, 'TargetPos'] < 0:
                     book.book.ix[sym, book.ind, 'TargetPos'] = 0
-        # leverage constraints
-            borrow = (book.book.ix["Asset",book.ind,'Pos'] + book.book.ix["Cash",book.ind,'Pos']) * self.constraints.leverage
+            # leverage constraints
+            borrow = (book.book.ix["Asset",book.ind,'Pos'] + \
+                book.book.ix["Cash",book.ind,'Pos']) * self.constraints.leverage
             if book.book.ix["Cash",book.ind,'Pos'] > -1.0 * borrow:
                 pass
             else:
-                book.book.ix[sym, book.ind, 'TargetPos'] = book.book.ix[sym, book.ind, 'TargetPos'] if \
-                book.book.ix[sym, book.ind, 'TargetPos'] < book.book.ix[sym, book.ind, 'Pos'] else \
-                book.book.ix[sym, book.ind, 'Pos']
+                book.book.ix[sym, book.ind, 'TargetPos'] = \
+                    book.book.ix[sym, book.ind, 'TargetPos'] \
+                    if \
+                    book.book.ix[sym, book.ind, 'TargetPos'] < \
+                    book.book.ix[sym, book.ind, 'Pos']  \
+                    else \
+                    book.book.ix[sym, book.ind, 'Pos']
         # drawdown constraints
             if total_asset/book.initial_capital <= self.constraints.drawdown:
                 self.constraints.drawdown_mark = True

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>event module &mdash; . 0.9.2 documentation</title>
+    <title>event module &mdash; backbin 0.9 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.9.2',
+        VERSION:     '0.9',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title=". 0.9.2 documentation" href="index.html" />
+    <link rel="top" title="backbin 0.9 documentation" href="index.html" />
     <link rel="next" title="hdf5util module" href="hdf5util.html" />
     <link rel="prev" title="constraint module" href="constraint.html" /> 
   </head>
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="constraint.html" title="constraint module"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">. 0.9.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">backbin 0.9 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -52,8 +52,36 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="event-module">
-<h1>event module<a class="headerlink" href="#event-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-event">
+<span id="event-module"></span><h1>event module<a class="headerlink" href="#module-event" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="event.Event">
+<em class="property">class </em><tt class="descclassname">event.</tt><tt class="descname">Event</tt><a class="reference internal" href="_modules/event.html#Event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#event.Event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Event is base class providing an interface for all subsequent
+(inherited) events, that will trigger further events in the
+trading infrastructure.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="event.MarketEvent">
+<em class="property">class </em><tt class="descclassname">event.</tt><tt class="descname">MarketEvent</tt><a class="reference internal" href="_modules/event.html#MarketEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#event.MarketEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#event.Event" title="event.Event"><tt class="xref py py-class docutils literal"><span class="pre">event.Event</span></tt></a></p>
+<p>Handles the event of receiving a new market update with
+corresponding bars.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="event.MarketEvent.connect">
+<tt class="descname">connect</tt><big>(</big><em>handler</em><big>)</big><a class="reference internal" href="_modules/event.html#MarketEvent.connect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#event.MarketEvent.connect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="event.MarketEvent.fire">
+<tt class="descname">fire</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/event.html#MarketEvent.fire"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#event.MarketEvent.fire" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -105,7 +133,7 @@
         <li class="right" >
           <a href="constraint.html" title="constraint module"
              >previous</a> |</li>
-        <li><a href="index.html">. 0.9.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">backbin 0.9 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
