@@ -11,9 +11,21 @@ import talib
 
     
 def list_indicator_groups():
-    return ["Overlap", "Momentum","Volume","Volatility","Price","Cycle","Pattern"]
+    """ list available indicator groups
+        group: "Overlap", "Momentum","Volume","Volatility","Price",\
+            "Cycle","Pattern"
+    """
+    return ["Overlap", "Momentum","Volume","Volatility","Price",\
+    "Cycle","Pattern"]
 
 def list_indicator(group=None):
+    """ list all available indicators
+    
+    Parameters:
+    -------
+    group: string (optional)
+        group of indicator; if none, function will list all indicators
+    """
     if group is None:
         return talib.get_functions()
     else:
@@ -39,6 +51,13 @@ def list_indicator(group=None):
             return  
 
 def help_indicator(code):
+    """ list all available indicators
+    
+    Parameters:
+    -------
+    code: code of symbol (required)
+        get help information of a symbol
+    """
     if code is None:
         print "Usage: help_indicator(symbol), symbol is indicator name"
     else:
@@ -49,8 +68,38 @@ def help_indicator(code):
             func = talib.abstract.Function(code)
             print func
            
-def get_indicator(panel, code, obj, functor):
+def get_indicator(data = None, indicator_name):
+    """ Compute indicators
+    
+    Parameters:
+    -------
+    data: dataframe (optional)
+        OHLCVA data
+    
+    indicator_name: string
+        name of indicator, shold be get from list_indicators
+    
+
+    Return:
+    -------
+    if data is none, return the corresponding function object
+    otherwise return computed dataframe containing indicators
+    
+    Notes:
+    ------
+    if data is None, return function object, so that you can apply 
+    it and feed with parameters to gain more control; in the latter case, 
+    indicator is applied with default parameters
     """
-    """
-    ret = functor( numpy.array(panel.ix[code,:,obj]))
-    return pandas.DataFrame(ret, index=panel.index)
+    if indicator_name.upper() not in talib.get_functions():
+        print "ERROR: indicator "+indicator_name+" not in list"
+        return
+    else:
+        if data is not None:
+            data.columns = [s.lower() for s in data.columns]
+            func = talib.abstract.Function(indicator_name)
+            ret = func(data, price='open')
+            data.columns = [s.title() for s in data.columns]
+            return ret
+        else:
+            return talib.abstract.Function(indicator_name)

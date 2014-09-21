@@ -169,6 +169,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">start_ind</span> <span class="o">=</span> <span class="n">start</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_stock</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">stock</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">code</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">code</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot; constituting data panel... &quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">beg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stock</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">start_ind</span><span class="p">]</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stock</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">()</span>
@@ -223,11 +224,33 @@
                 <span class="k">print</span> <span class="s">&quot;WARNING: following symbols are not in database and ignored&quot;</span>
                 <span class="k">print</span> <span class="n">voidcodelist</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">latest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">newcodelist</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">latest</span>
+</div>
+<div class="viewcode-block" id="BackTestData.pick_bar"><a class="viewcode-back" href="../bindata.html#bindata.BackTestData.pick_bar">[docs]</a>    <span class="k">def</span> <span class="nf">pick_bar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;pick out OHLCVA of a symbol</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        -------</span>
+<span class="sd">        code: [required]</span>
+<span class="sd">            the symbol you want, eg: 000001, 300693</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        -------</span>
+<span class="sd">        pandas dataframe</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">code</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">code</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;ERROR: cannot find your code &quot;</span><span class="o">+</span><span class="n">code</span>
+            <span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stock</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">code</span><span class="p">]</span>
 </div>
 <div class="viewcode-block" id="BackTestData.reset"><a class="viewcode-back" href="../bindata.html#bindata.BackTestData.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Restore all data status to original.</span>
+        <span class="sd">&quot;&quot;&quot;pick out OHLCVA of a symbol</span>
+<span class="sd">        </span>
+<span class="sd">        Purpose:</span>
+<span class="sd">        -------</span>
+<span class="sd">        Restore evertything to original state.</span>
+<span class="sd">        Ready for next round of backtest</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot; reset context... &quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">beg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stock</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">start_ind</span><span class="p">]</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">()</span>

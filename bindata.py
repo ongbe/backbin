@@ -182,8 +182,12 @@ class BackTestData(object):
         
         Parameters:
         -------
-        code:
+        code: [required]
             the symbol you want, eg: 000001, 300693
+            
+        Returns:
+        -------
+        pandas dataframe
         """
         if code not in self.code:
             print "ERROR: cannot find your code "+code
