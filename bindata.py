@@ -25,8 +25,14 @@ class DataHandler(object):
         self.status = 1
         self.directory = os.path.expanduser(directory)
         self.code = []
+        self.indices_code = []
+        self.futures_code = []
         self.stock = {}
-        self.desp = {}
+        self.indices = {}
+        self.futures = {}
+        self.stock_desp = {}
+        self.indices_desp = {}
+        self.futures_desp = {}
         self.active = 0
         for root, dirnames, filenames in os.walk(directory):
             for filename in filenames:
@@ -35,18 +41,26 @@ class DataHandler(object):
                 else:
                     raise Exception("Must assign proper data directory")
         sys.stdout.write( "1. reading codes...")
-        ifile = open(self.directory+'listcode.csv', "r")
+        ifile = open(self.directory+'stock/listcode.csv', "r")
         reader = csv.reader(ifile)
         next(reader, None) 
         for row in reader:
             self.code.append(row[0])
-            self.desp[row[0]]={}
-            self.desp[row[0]]['gics']=row[1]
-            self.desp[row[0]]['float']=row[2]
-            self.desp[row[0]]['total']=row[3]
-            self.desp[row[0]]['beg']=row[4]
-            self.desp[row[0]]['name']=row[5]
-        print " success"
+            self.stock_desp[row[0]]={}
+            self.stock_esp[row[0]]['gics']=row[1]
+            self.stock_esp[row[0]]['float']=row[2]
+            self.stock_desp[row[0]]['total']=row[3]
+            self.stock_desp[row[0]]['beg']=row[4]
+            self.stock_desp[row[0]]['name']=row[5]
+        print " succeed reading stock codes"
+        ifile = open(self.directory+'index/listcode.csv', "r")
+        reader = csv.reader(ifile)
+        next(reader, None) 
+        for row in reader:
+            self.indices_code.append(row[0])
+            self.indices_desp[[row[0]]['name']=row[1]
+  
+        print " succeed reading index codes"
         if len(codelist) != 0:
             if len(set(self.code) & set(codelist)) == 0:
                 print "ERROR: none of your symbols exists in database"
@@ -58,22 +72,43 @@ class DataHandler(object):
                 print voidcodelist
             self.code = newcodelist
 
-        print "2. reading time series..."
+        print "2. reading index time series..."
+        i = 0
+        j = 0
+        for s in self.indices_code:
+            vp = 20
+            increment = 20.0/len(self.indices_code)
+            if os.path.exists(self.directory+'index/'+s+'.csv'):
+                self.indices[s] = pandas.read_csv(self.directory+'index/'+s+'.csv',index_col=0,skipinitialspace=True, parse_dates=True)
+                i += 1
+            else:
+                self.indices_code.remove(s)
+                j += 1
+            sys.stdout.write("\r[" + "=" * int(i * increment) + " " * int(vp - i * increment) + "] " + str(i)+"/"+str(len(self.indices_code)))
+        print "\n Successfully imported "+str(i)+" indices, "+str(j)+" discarded"
+        self.indices = pandas.Panel(self.indices)
+         
+
+
+
+        print "3. reading stock time series..."
         i = 0
         j = 0
         for s in self.code:
             vp = 20
             increment = 20.0/len(self.code)
-            if os.path.exists(self.directory+s+'.csv'):
-                self.stock[s] = pandas.read_csv(self.directory+s+'.csv',index_col=0,skipinitialspace=True, parse_dates=True)
+            if os.path.exists(self.directory+'stock/'+s+'.csv'):
+                self.stock[s] = pandas.read_csv(self.directory+'stock/'+s+'.csv',index_col=0,skipinitialspace=True, parse_dates=True)
                 i += 1
             else:
                 self.code.remove(s)
                 j += 1
             sys.stdout.write("\r[" + "=" * int(i * increment) + " " * int(vp - i * increment) + "] " + str(i)+"/"+str(len(self.code)))
         print "\n Successfully imported "+str(i)+" securities, "+str(j)+" discarded"
-
         self.stock = pandas.Panel(self.stock)
+         
+
+
         # set begin time
         self.beg   = self.stock.major_axis[0].to_datetime()
         # set end time 
@@ -95,7 +130,9 @@ class DataHandler(object):
             self.status = 1
             self.code = []
             self.stock = {}
-            self.desp = {}
+            self.indices = {}
+            self.stock_desp = {}
+            self.indices_desp = {}
             self.active = 0
     
     def compile_table(self):

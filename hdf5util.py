@@ -15,13 +15,16 @@ from bindata import DataHandler
 quote_col = ['Open','Close','High','Low','Pre','Vol','Amt']
 
 
-def WriteToHDF(panel, desp, filename):
+def WriteToHDF(datahandler, filename, datatype="all"):
     """ WriteToHDF: write data to HDF
     
     """
     code="";
     f = h5py.File(filename, 'w')
     # attributes prepared for HDF
+    if datatype=="all":
+      panel = datahandler.stock
+
     mt = {"version":"3.0", "CLASS":"TABLE", 
     "TITLE":"quote", "FIELD_0_NAME":"TIMESTAMP",
     "FIELD_1_NAME":"Open","FIELD_2_NAME":"Close",
@@ -42,8 +45,8 @@ def WriteToHDF(panel, desp, filename):
         grp = f.create_group("/stock/"+code)
         write_table_hdf5(table=tb, output=grp, path='quote', overwrite=True)
         grp.attrs['code'] = code
-        grp.attrs['name'] = desp[code]['name']
-        grp.attrs['gics'] = desp[code]['gics']
+        grp.attrs['name'] = stock_desp[code]['name']
+        grp.attrs['gics'] = stock_desp[code]['gics']
         grp.attrs['first']= head[0]
         grp.attrs['last'] = head[-1]
         grp.attrs['beg']= datetime.datetime.utcfromtimestamp(head[0]/1000).strftime('%Y%m%d.%H:%M:%S')
@@ -76,9 +79,9 @@ def ReadFromHDF(filename):
         df=pandas.DataFrame(data, index=id, columns=quote_col)
         pn.stock[key] = df
         pn.code.append(key)
-        pn.desp[key] = {}
-        pn.desp[key]['gics'] = attrs.get(name='gics')
-        pn.desp[key]['name'] = attrs.get(name='name')
+        pn.stock_desp[key] = {}
+        pn.stock_desp[key]['gics'] = attrs.get(name='gics')
+        pn.stock_desp[key]['name'] = attrs.get(name='name')
     f.close()
     pn.stock = pandas.Panel(pn.stock)
     pn.date = pn.stock.major_axis
