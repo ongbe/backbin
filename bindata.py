@@ -5,6 +5,7 @@ import os, os.path
 import fnmatch
 import csv
 import sys
+from collections import defaultdict
 from abc import ABCMeta, abstractmethod
 from event import MarketEvent
 
@@ -27,6 +28,8 @@ class DataHandler(object):
         self.code = []
         self.indices_code = []
         self.futures_code = []
+        self.financial = {} #defaultdict(list)
+        self.financial_reports={}
         self.stock = {}
         self.indices = {}
         self.futures = {}
@@ -40,27 +43,27 @@ class DataHandler(object):
                     self.status = 0
                 else:
                     raise Exception("Must assign proper data directory")
-        sys.stdout.write( "1. reading codes...")
+        sys.stdout.write( "1. reading symbols...")
         ifile = open(self.directory+'stock/listcode.csv', "r")
         reader = csv.reader(ifile)
         next(reader, None) 
         for row in reader:
             self.code.append(row[0])
             self.stock_desp[row[0]]={}
-            self.stock_esp[row[0]]['gics']=row[1]
-            self.stock_esp[row[0]]['float']=row[2]
+            self.stock_desp[row[0]]['gics']=row[1]
+            self.stock_desp[row[0]]['float']=row[2]
             self.stock_desp[row[0]]['total']=row[3]
             self.stock_desp[row[0]]['beg']=row[4]
             self.stock_desp[row[0]]['name']=row[5]
-        print " succeed reading stock codes"
+        print "\n succeed reading stock symbols"
         ifile = open(self.directory+'index/listcode.csv', "r")
         reader = csv.reader(ifile)
         next(reader, None) 
         for row in reader:
             self.indices_code.append(row[0])
-            self.indices_desp[[row[0]]['name']=row[1]
-  
-        print " succeed reading index codes"
+            self.indices_desp[row[0]] = {}
+            self.indices_desp[row[0]]['name']=row[1]
+        print " succeed reading index symbols"
         if len(codelist) != 0:
             if len(set(self.code) & set(codelist)) == 0:
                 print "ERROR: none of your symbols exists in database"
@@ -98,16 +101,73 @@ class DataHandler(object):
             vp = 20
             increment = 20.0/len(self.code)
             if os.path.exists(self.directory+'stock/'+s+'.csv'):
-                self.stock[s] = pandas.read_csv(self.directory+'stock/'+s+'.csv',index_col=0,skipinitialspace=True, parse_dates=True)
+                self.stock[s] = pandas.read_csv(self.directory + \
+                    'stock/'+s+'.csv',index_col=0,skipinitialspace =True, \
+                    parse_dates=True)
                 i += 1
             else:
                 self.code.remove(s)
                 j += 1
-            sys.stdout.write("\r[" + "=" * int(i * increment) + " " * int(vp - i * increment) + "] " + str(i)+"/"+str(len(self.code)))
-        print "\n Successfully imported "+str(i)+" securities, "+str(j)+" discarded"
+            sys.stdout.write("\r[" + "=" * int(i * increment) + \
+                " " * int(vp - i * increment) + "] " + str(i)+"/" \
+                    + str(len(self.code)))
+        print "\n Successfully imported "+str(i)+" securities, "+str(j)+ \
+            " discarded"
         self.stock = pandas.Panel(self.stock)
          
-
+        print "4. reading stock financials..."
+        ifile = open(self.directory+'financial/financial.csv', "r")
+        reader = csv.reader(ifile)
+        next(reader, None)
+        i = 0
+        self.financial_code = []
+        increment = 20.0/len(self.code)
+        code =""
+        financial_records=[]
+        for row in reader:
+            # self.financial.append(row[0])
+            if code != row[0]:
+                if financial_records:
+                    self.financial[code] = \
+                        pandas.DataFrame.from_records(financial_records, \
+                        index='rls_date')
+                    financial_records = []
+                self.financial[row[0]]=[];
+                i += 1
+                self.financial_code.append(row[0])
+                sys.stdout.write("\r[" + "=" * int(i * increment) + \
+                    " " * int(20 - i * increment) + "] " + str(i) + \
+                    "/"+str(len(self.code)))
+                code = row[0]
+            newrecord = {}
+            newrecord['rpt_date']=datetime.strptime(row[1],'%Y%m%d')
+            if row[2]:
+                newrecord['rls_date']=datetime.strptime(row[2],'%Y%m%d')
+            newrecord['eps']=row[3]
+            newrecord['eps_ttm']=row[4]
+            newrecord['asset_ps']=row[5]
+            newrecord['revenue_ps']=row[6]
+            newrecord['revenue_ps_ttm']=row[7]
+            newrecord['op_fcf_ps']=row[8]
+            newrecord['op_fcf_ps_ttm']=row[9]
+            newrecord['fcf_ps']=row[10]
+            newrecord['fcf_ps_ttm']=row[11]
+            newrecord['asset']=row[12]
+            newrecord['debt']=row[13]
+            newrecord['equity']=row[14]     
+            newrecord['revenue']=row[15]  
+            newrecord['profit']=row[16]  
+            newrecord['net_profit']=row[17]  
+            newrecord['revenue_growth']=row[18]  
+            newrecord['profit_growth']=row[19]  
+            newrecord['al_ratio']=row[20]  
+            newrecord['gross_profit_margin']=row[21]  
+            newrecord['netROE']=row[22]  
+            newrecord['capt_turnover']=row[23]  
+            financial_records.append(newrecord)
+            
+            
+        print " \nsucceed reading stock financials"
 
         # set begin time
         self.beg   = self.stock.major_axis[0].to_datetime()
