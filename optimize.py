@@ -63,6 +63,6 @@ class NaiveOptimizer(Optimizer):
                 self.constraints.drawdown_mark = True
 
 
-class NormalOptimizer(Optimizer):
+class MarkowitzOptimizer(Optimizer):
     def gen_positions(self, signals, book):
         pass

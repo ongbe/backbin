@@ -28,8 +28,9 @@ class DataHandler(object):
         self.code = []
         self.indices_code = []
         self.futures_code = []
-        self.financial = {} #defaultdict(list)
-        self.financial_reports={}
+        self.financial = {} 
+        self.financial_reports=[]
+
         self.stock = {}
         self.indices = {}
         self.futures = {}
@@ -75,7 +76,7 @@ class DataHandler(object):
                 print voidcodelist
             self.code = newcodelist
 
-        print "2. reading index time series..."
+        print "2. reading index time series.."
         i = 0
         j = 0
         for s in self.indices_code:
@@ -115,7 +116,7 @@ class DataHandler(object):
             " discarded"
         self.stock = pandas.Panel(self.stock)
          
-        print "4. reading stock financials..."
+        print "4. reading stock financials...."
         ifile = open(self.directory+'financial/financial.csv', "r")
         reader = csv.reader(ifile)
         next(reader, None)
@@ -141,7 +142,9 @@ class DataHandler(object):
                 code = row[0]
             newrecord = {}
             newrecord['rpt_date']=datetime.strptime(row[1],'%Y%m%d')
-            if row[2]:
+            if not row[2]:
+                newrecord['rls_date']=newrecord['rpt_date']
+            else:
                 newrecord['rls_date']=datetime.strptime(row[2],'%Y%m%d')
             newrecord['eps']=row[3]
             newrecord['eps_ttm']=row[4]
@@ -165,6 +168,8 @@ class DataHandler(object):
             newrecord['netROE']=row[22]  
             newrecord['capt_turnover']=row[23]  
             financial_records.append(newrecord)
+            newrecord['code']=row[0]  
+            self.financial_reports.append(newrecord)
             
             
         print " \nsucceed reading stock financials"
