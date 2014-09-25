@@ -28,7 +28,7 @@ class DataHandler(object):
         self.code = []
         self.indices_code = []
         self.futures_code = []
-        self.financial = {} 
+        self.financial = {}
         self.financial_reports=[]
 
         self.stock = {}
@@ -130,7 +130,7 @@ class DataHandler(object):
             if code != row[0]:
                 if financial_records:
                     self.financial[code] = \
-                        pandas.DataFrame.from_records(financial_records, \
+                        pandas.DataFrame.from_records(financial_records[::-1], \
                         index='rls_date')
                     financial_records = []
                 self.financial[row[0]]=[];
@@ -171,6 +171,9 @@ class DataHandler(object):
             newrecord['code']=row[0]  
             self.financial_reports.append(newrecord)
             
+        self.financial[row[0]] = \
+            pandas.DataFrame.from_records(financial_records[::-1], \
+            index='rls_date')
             
         print " \nsucceed reading stock financials"
 
@@ -214,6 +217,16 @@ class DataHandler(object):
 
 class BackTestData(object):
 
+    def get_financials(self, symbol, date):
+        if symbol not in self._financial:
+            return
+        ind = self._financial[symbol].index.searchsorted(date)
+        if ind==0:
+            return 
+        else:
+            self.financial[symbol] = self._financial[symbol].ix[ind-1].to_dict()         
+
+
     def __init__(self, target, start=None):
         if (start is None):
             # default start from half a year later
@@ -221,24 +234,38 @@ class BackTestData(object):
             self.start_ind = 125
         else:
             self.start_ind = start
+        # assign data
         self._stock = target.stock
+        self._indices = target.indices
+        self._financial = target.financial
+        self._financial_reports = target.financial_reports[::-1]
+        # assign symbols        
         self.code = target.code
-        sys.stdout.write(" constituting data panel... ")
+        self.indices_code = target.indices_code
+        
+        sys.stdout.write(" Constituting data panel... ")
         self.beg = self._stock.ix[0].index[self.start_ind].to_datetime()
         self.end = self._stock.ix[0].index[-1].to_datetime()
         self.now = self.beg
+        self.financial = defaultdict(dict)
         
         self.now_ind = 0
-        # now_ind is for indexing "data", not "_stock" ; 
+        # WARNING: now_ind is for indexing "data", not "_stock" ; 
         # now_ind = ind - start_ind
         
         self.ind = self.start_ind
         self.date = self._stock.major_axis
-        self.data_index = self.date[self.start_ind:]
+        self.data_indices = self.date[self.start_ind:]
         self.data = self._stock.ix[:, self.start_ind:self.ind+1]
+        
+        # get all financial ratios
+        map(lambda x:self.get_financials(x,self.beg), self.code)
+
+        # raise OK flag
         self.proceed = "OK"
         print "success"
 
+            
     def update_bars(self):
         """
         Pushes the latest bar to the latest_symbol_data structure
@@ -250,6 +277,10 @@ class BackTestData(object):
         
         # core: update data view
         self.data = self._stock.ix[:, self.start_ind:self.ind+1]
+        self.data_indices = self._indices.ix[:, self.start_ind:self.ind+1]
+       
+        # update financial ratios
+       
         
         # set now to be current date
         self.now = self.data.ix[0].index[-1].to_datetime()
@@ -279,23 +310,35 @@ class BackTestData(object):
         self.latest = self.data.ix[newcodelist, -1]
         return self.latest
 
-    def pick_bar(self, code):
+    def pick_bar(self, code, type='stock'):
         """pick out OHLCVA of a symbol
         
         Parameters:
         -------
         code: [required]
             the symbol you want, eg: 000001, 300693
+        type: [optional]
+            stock,index, etf, swap, option, and etc
+        
             
         Returns:
         -------
         pandas dataframe
         """
-        if code not in self.code:
-            print "ERROR: cannot find your code "+code
-            return
-        else:
-            return self._stock.ix[code]
+        if type=='stock':
+            if code not in self.code:
+                print "ERROR: cannot find your code "+code
+                return
+            else:
+                return self._stock.ix[code]
+        elif type=='index':
+            if code not in self.indices_code:
+                print "ERROR: cannot find your code "+code
+                return
+            else:
+                return self._indices.ix[code]
+
+    
 
     def reset(self):
         """pick out OHLCVA of a symbol
@@ -317,3 +360,4 @@ class BackTestData(object):
 
 
 raw = DataHandler(directory='~/data/')
+data = BackTestData(raw)
